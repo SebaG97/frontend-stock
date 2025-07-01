@@ -1,0 +1,8 @@
+192.168.100.51 - - [01/Jul/2025:11:30:34 -0300] "GET / HTTP/1.1" 502 497 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0"
+192.168.100.51 - - [01/Jul/2025:11:30:34 -0300] "GET /favicon.ico HTTP/1.1" 502 497 "http://192.168.100.51/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0"
+127.0.0.1 - - [01/Jul/2025:11:30:53 -0300] "GET / HTTP/1.1" 502 497 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0"
+127.0.0.1 - - [01/Jul/2025:11:30:54 -0300] "GET /favicon.ico HTTP/1.1" 502 497 "http://localhost/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0"
+192.168.100.51 - - [01/Jul/2025:11:37:55 -0300] "GET / HTTP/1.1" 502 497 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0"
+192.168.100.51 - - [01/Jul/2025:11:37:55 -0300] "GET /favicon.ico HTTP/1.1" 502 497 "http://192.168.100.51/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0"
+192.168.100.51 - - [01/Jul/2025:11:48:27 -0300] "GET / HTTP/1.1" 502 497 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0"
+192.168.100.51 - - [01/Jul/2025:11:48:27 -0300] "GET /favicon.ico HTTP/1.1" 502 497 "http://192.168.100.51/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 OPR/119.0.0.0"

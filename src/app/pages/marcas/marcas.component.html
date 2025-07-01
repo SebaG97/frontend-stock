@@ -1,0 +1,103 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card p-6">
+      <p-toast></p-toast>
+      <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+          <div class="my-2">
+            <button pButton pRipple label="Nueva Marca" icon="pi pi-plus"
+              class="p-button-success mr-2"
+              (click)="openNew()"></button>
+            <button pButton pRipple label="Eliminar" icon="pi pi-trash"
+              class="p-button-danger"
+              (click)="deleteSelectedMarcas()"
+              [disabled]="!selectedMarcas || !selectedMarcas.length"></button>
+          </div>
+        </ng-template>
+      </p-toolbar>
+      <p-table #dt [value]="marcas" [paginator]="true" [rows]="10"
+        [showCurrentPageReport]="true" [rowsPerPageOptions]="[10,25,50]"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} marcas"
+        [globalFilterFields]="['nombre']"
+        responsiveLayout="scroll"
+        [(selection)]="selectedMarcas"
+        (selectionChange)="onSelectionChange($event)"
+        selectionMode="multiple"
+        [rowHover]="true"
+        dataKey="id"
+        styleClass="estado-table"
+        [loading]="loading">
+        <ng-template pTemplate="caption">
+          <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <h5 class="m-0">Gestión de Marcas</h5>
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Buscar marcas..." />
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th pSortableColumn="nombre">
+              Nombre
+              <p-sortIcon field="nombre"></p-sortIcon>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-marca>
+          <tr>
+            <td>
+              <p-tableCheckbox [value]="marca"></p-tableCheckbox>
+            </td>
+            <td>{{ marca.nombre }}</td>
+            <td>
+              <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
+                (click)="editMarca(marca)"></button>
+              <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                (click)="deleteMarca(marca)"></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="3" class="text-center py-6">
+              No se encontraron marcas
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <p-dialog [(visible)]="marcaDialog" [style]="{width: '450px'}"
+        [header]="editId ? 'Editar Marca' : 'Nueva Marca'"
+        [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+          <div class="field">
+            <label for="nombre">Nombre *</label>
+            <input type="text" pInputText id="nombre"
+              [(ngModel)]="marca.nombre"
+              required autofocus
+              [class.ng-invalid.ng-dirty]="submitted && !marca.nombre"
+              placeholder="Ingrese el nombre de la marca" />
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !marca.nombre">
+              El nombre es requerido.
+            </small>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times"
+            class="p-button-text"
+            (click)="hideDialog()"></button>
+          <button pButton pRipple label="Guardar" icon="pi pi-check"
+            class="p-button-text"
+            (click)="saveMarca()"
+            [disabled]="!marca.nombre"></button>
+        </ng-template>
+      </p-dialog>
+      <p-confirmDialog [style]="{width: '350px'}"></p-confirmDialog>
+    </div>
+  </div>
+</div>

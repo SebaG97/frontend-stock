@@ -1,0 +1,108 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card p-6">
+      <p-toast></p-toast>
+      <!-- Toolbar -->
+      <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+          <div class="my-2">
+            <button pButton pRipple label="Nuevo Rubro" icon="pi pi-plus"
+              class="p-button-success mr-2"
+              (click)="openNew()"></button>
+            <button pButton pRipple label="Eliminar" icon="pi pi-trash"
+              class="p-button-danger"
+              (click)="deleteSelectedRubros()"
+              [disabled]="!selectedRubros || !selectedRubros.length"></button>
+          </div>
+        </ng-template>
+      </p-toolbar>
+      <!-- Tabla -->
+      <p-table #dt [value]="rubros" [paginator]="true" [rows]="10"
+        [showCurrentPageReport]="true" [rowsPerPageOptions]="[10,25,50]"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} rubros"
+        [globalFilterFields]="['nombre']"
+        responsiveLayout="scroll"
+        [(selection)]="selectedRubros"
+        (selectionChange)="onSelectionChange($event)"
+        selectionMode="multiple"
+        [rowHover]="true"
+        dataKey="id"
+        styleClass="estado-table"
+        [loading]="loading">
+        <!-- Header con filtro global -->
+        <ng-template pTemplate="caption">
+          <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <h5 class="m-0">Gestión de Rubros</h5>
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Buscar rubros..." />
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th pSortableColumn="nombre">
+              Nombre
+              <p-sortIcon field="nombre"></p-sortIcon>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rubro>
+          <tr>
+            <td>
+              <p-tableCheckbox [value]="rubro"></p-tableCheckbox>
+            </td>
+            <td>{{ rubro.nombre }}</td>
+            <td>
+              <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
+                (click)="editRubro(rubro)"></button>
+              <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                (click)="deleteRubro(rubro)"></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="3" class="text-center py-6">
+              No se encontraron rubros
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <!-- Diálogo para crear/editar rubro -->
+      <p-dialog [(visible)]="rubroDialog" [style]="{width: '450px'}"
+        [header]="editId ? 'Editar Rubro' : 'Nuevo Rubro'"
+        [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+          <div class="field">
+            <label for="nombre">Nombre *</label>
+            <input type="text" pInputText id="nombre"
+              [(ngModel)]="rubro.nombre"
+              required autofocus
+              [class.ng-invalid.ng-dirty]="submitted && !rubro.nombre"
+              placeholder="Ingrese el nombre del rubro" />
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !rubro.nombre">
+              El nombre es requerido.
+            </small>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times"
+            class="p-button-text"
+            (click)="hideDialog()"></button>
+          <button pButton pRipple label="Guardar" icon="pi pi-check"
+            class="p-button-text"
+            (click)="saveRubro()"
+            [disabled]="!rubro.nombre"></button>
+        </ng-template>
+      </p-dialog>
+      <!-- Diálogo de confirmación para eliminar -->
+      <p-confirmDialog [style]="{width: '350px'}"></p-confirmDialog>
+    </div>
+  </div>
+</div>

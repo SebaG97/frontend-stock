@@ -1,0 +1,103 @@
+<div class="grid">
+  <div class="col-12">
+    <div class="card p-6">
+      <p-toast></p-toast>
+      <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="left">
+          <div class="my-2">
+            <button pButton pRipple label="Nueva Procedencia" icon="pi pi-plus"
+              class="p-button-success mr-2"
+              (click)="openNew()"></button>
+            <button pButton pRipple label="Eliminar" icon="pi pi-trash"
+              class="p-button-danger"
+              (click)="deleteSelectedProcedencias()"
+              [disabled]="!selectedProcedencias || !selectedProcedencias.length"></button>
+          </div>
+        </ng-template>
+      </p-toolbar>
+      <p-table #dt [value]="procedencias" [paginator]="true" [rows]="10"
+        [showCurrentPageReport]="true" [rowsPerPageOptions]="[10,25,50]"
+        currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} procedencias"
+        [globalFilterFields]="['nombre']"
+        responsiveLayout="scroll"
+        [(selection)]="selectedProcedencias"
+        (selectionChange)="onSelectionChange($event)"
+        selectionMode="multiple"
+        [rowHover]="true"
+        dataKey="id"
+        styleClass="estado-table"
+        [loading]="loading">
+        <ng-template pTemplate="caption">
+          <div class="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
+            <h5 class="m-0">Gestión de Procedencias</h5>
+            <span class="block mt-2 md:mt-0 p-input-icon-left">
+              <i class="pi pi-search"></i>
+              <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+                placeholder="Buscar procedencias..." />
+            </span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 3rem">
+              <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            </th>
+            <th pSortableColumn="nombre">
+              Nombre
+              <p-sortIcon field="nombre"></p-sortIcon>
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-procedencia>
+          <tr>
+            <td>
+              <p-tableCheckbox [value]="procedencia"></p-tableCheckbox>
+            </td>
+            <td>{{ procedencia.nombre }}</td>
+            <td>
+              <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
+                (click)="editProcedencia(procedencia)"></button>
+              <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
+                (click)="deleteProcedencia(procedencia)"></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="3" class="text-center py-6">
+              No se encontraron procedencias
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <p-dialog [(visible)]="procedenciaDialog" [style]="{width: '450px'}"
+        [header]="editId ? 'Editar Procedencia' : 'Nueva Procedencia'"
+        [modal]="true" class="p-fluid">
+        <ng-template pTemplate="content">
+          <div class="field">
+            <label for="nombre">Nombre *</label>
+            <input type="text" pInputText id="nombre"
+              [(ngModel)]="procedencia.nombre"
+              required autofocus
+              [class.ng-invalid.ng-dirty]="submitted && !procedencia.nombre"
+              placeholder="Ingrese el nombre de la procedencia" />
+            <small class="ng-dirty ng-invalid" *ngIf="submitted && !procedencia.nombre">
+              El nombre es requerido.
+            </small>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <button pButton pRipple label="Cancelar" icon="pi pi-times"
+            class="p-button-text"
+            (click)="hideDialog()"></button>
+          <button pButton pRipple label="Guardar" icon="pi pi-check"
+            class="p-button-text"
+            (click)="saveProcedencia()"
+            [disabled]="!procedencia.nombre"></button>
+        </ng-template>
+      </p-dialog>
+      <p-confirmDialog [style]="{width: '350px'}"></p-confirmDialog>
+    </div>
+  </div>
+</div>

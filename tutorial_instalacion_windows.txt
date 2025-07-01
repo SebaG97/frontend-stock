@@ -1,0 +1,103 @@
+# Tutorial de instalación: Frontend Angular + Backend FastAPI en Windows (modo desarrollo en red local)
+
+## Requisitos previos
+- Windows 10/11
+- Python 3.10+ instalado
+- Node.js 18+ y npm instalados
+- Git instalado (opcional, recomendado)
+
+---
+
+## 1. Clonar los repositorios
+
+```
+git clone <URL_DEL_REPO_FRONTEND>
+git clone <URL_DEL_REPO_BACKEND>
+```
+
+---
+
+## 2. Instalar dependencias del backend (FastAPI)
+
+```
+cd <carpeta_backend>
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+---
+
+## 3. Instalar dependencias del frontend (Angular)
+
+```
+cd <carpeta_frontend>
+npm install
+```
+
+---
+
+## 4. Configurar el proxy de Angular (ya incluido)
+Asegúrate de que el archivo `proxy.conf.json` existe y contiene:
+
+```
+{
+  "/api": {
+    "target": "http://localhost:8000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}
+```
+
+---
+
+## 5. Levantar el backend FastAPI
+
+```
+cd <carpeta_backend>
+.venv\Scripts\activate
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+---
+
+## 6. Levantar el frontend Angular accesible en la red local
+
+```
+cd <carpeta_frontend>
+npm start -- --host 0.0.0.0 --port 5173
+```
+
+---
+
+## 7. Acceso desde otros dispositivos de la red
+
+- Frontend:  http://IP_DEL_SERVIDOR:5173
+- Backend:   http://IP_DEL_SERVIDOR:8000
+
+Donde `IP_DEL_SERVIDOR` es la IP local de la PC servidor (ejemplo: 192.168.1.100).
+
+---
+
+## 8. Notas importantes
+- Asegúrate de abrir los puertos 5173 y 8000 en el firewall de Windows.
+- El proxy de Angular redirige automáticamente las llamadas a `/api` hacia el backend.
+- Para producción, se recomienda usar Nginx o similar, pero este tutorial es para desarrollo y pruebas en red local.
+
+---
+
+## 9. Detener los servicios
+- Para detener el backend o frontend, presiona `Ctrl+C` en la terminal correspondiente.
+
+---
+
+## 10. Solución de problemas
+- Si no puedes acceder desde otros dispositivos, revisa el firewall y la IP del servidor.
+- Si el frontend muestra error 404 en `/api`, asegúrate de que el backend esté corriendo y accesible.
+- Usa http://IP_DEL_SERVIDOR:8000/docs para ver la documentación de la API FastAPI.
+
+---
+
+¡Listo! Así puedes instalar y correr el sistema en una PC nueva para desarrollo en red local.
