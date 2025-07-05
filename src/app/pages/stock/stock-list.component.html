@@ -1,0 +1,71 @@
+<p-toast></p-toast>
+<div class="card p-6">
+  <div class="flex justify-content-between align-items-center mb-3">
+    <h5>Stock por producto y depósito</h5>
+  </div>
+  <div class="flex gap-3 mb-3 align-items-end flex-wrap">
+    <span class="flex flex-column">
+      <label for="filtroProducto" class="mb-1">Producto:</label>
+      <p-multiSelect id="filtroProducto" [options]="productos" optionLabel="descripcion" optionValue="id" [(ngModel)]="filtroProducto" (onChange)="filtrarStock()" [showClear]="true" placeholder="Todos" styleClass="w-18rem"></p-multiSelect>
+    </span>
+    <span class="flex flex-column">
+      <label for="filtroDeposito" class="mb-1">Depósito:</label>
+      <p-dropdown id="filtroDeposito" [options]="depositos" optionLabel="nombre" optionValue="id" [(ngModel)]="filtroDeposito" (onChange)="filtrarStock()" [showClear]="true" placeholder="Todos" styleClass="w-14rem"></p-dropdown>
+    </span>
+    <span class="flex flex-column">
+      <label for="search" class="mb-1">Buscar:</label>
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText id="search" type="text" [(ngModel)]="search" (input)="filtrarStock()" placeholder="Producto o depósito..." class="w-16rem" />
+      </span>
+    </span>
+  </div>
+  <div *ngIf="filtroProducto.length > 0" class="flex flex-column mb-2">
+    <span class="font-semibold mb-1">Total por producto (sumando todos los depósitos):</span>
+    <div class="flex flex-wrap gap-3">
+      <span *ngFor="let t of totalPorProducto" class="bg-primary-reverse border-round p-2 shadow-1">
+        <b>{{ t.producto.descripcion }}</b>: {{ t.total }}
+      </span>
+    </div>
+  </div>
+  <p-table [value]="filteredStock" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,25,50]" [loading]="loading" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Producto</th>
+        <th>Depósito</th>
+        <th>Existencia</th>
+        <th>Stock mínimo</th>
+        <th>Editar</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-row let-i="rowIndex">
+      <tr>
+        <td>{{ row.producto?.descripcion || '-' }}</td>
+        <td>{{ row.deposito?.nombre || '-' }}</td>
+        <td>
+          <span [ngClass]="{
+            'text-red-600 font-bold': row.existencia <= row.stock_minimo,
+          'text-orange-600 font-bold': row.existencia > row.stock_minimo && row.existencia <= row.stock_minimo + maxStockMinimo(row.stock_minimo)
+          }">
+            {{ row.existencia }}
+          </span>
+        </td>
+        <td *ngIf="row.editandoStockMinimo !== true">{{ row.stock_minimo }}</td>
+        <td *ngIf="row.editandoStockMinimo === true">
+          <input type="number" [(ngModel)]="row.nuevoStockMinimo" min="0" style="width: 60px;" />
+        </td>
+        <td>
+          <button *ngIf="row.editandoStockMinimo !== true" pButton icon="pi pi-pencil" class="p-button-text p-button-sm" (click)="editarStockMinimo(row)"></button>
+          <button *ngIf="row.editandoStockMinimo === true" pButton icon="pi pi-check" class="p-button-success p-button-sm mr-1" (click)="guardarStockMinimo(row)"></button>
+          <button *ngIf="row.editandoStockMinimo === true" pButton icon="pi pi-times" class="p-button-secondary p-button-sm" (click)="cancelarEdicionStockMinimo(row)"></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5">No hay registros de stock</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</div>

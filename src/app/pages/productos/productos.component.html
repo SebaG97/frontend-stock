@@ -1,0 +1,73 @@
+<p-toast></p-toast>
+<p-toolbar>
+  <div class="p-toolbar-group-left">
+    <button pButton label="Nuevo" icon="pi pi-plus" (click)="openNew()"></button>
+    <button pButton label="Eliminar" icon="pi pi-trash" class="p-button-danger" [disabled]="!selectedProductos.length" (click)="deleteSelectedProductos()"></button>
+  </div>
+</p-toolbar>
+
+<p-table [value]="productos" [(selection)]="selectedProductos" dataKey="id" (onSelectionChange)="onSelectionChange($event)" [loading]="loading" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5,10,20,50]">
+  <ng-template pTemplate="header">
+    <tr>
+      <th pSelectableRowDisabled></th>
+      <th>Código</th>
+      <th>Descripción</th>
+      <th>Marca</th>
+      <th>Rubro</th>
+      <th>Tipo</th>
+      <th>Proveedor</th>
+      <th>Acciones</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-producto>
+    <tr [pSelectableRow]="producto">
+      <td></td>
+      <td>{{ producto.codigo || '-' }}</td>
+      <td>{{ producto.descripcion || '-' }}</td>
+      <td>{{ getMarcaNombre(producto.marca_id) || '-' }}</td>
+      <td>{{ getRubroNombre(producto.rubro_id) || '-' }}</td>
+      <td>{{ getTipoProductoNombre(producto.tipo_producto_id) || '-' }}</td>
+      <td>{{ getProveedorNombre(producto.proveedor_id) || '-' }}</td>
+      <td>
+        <button pButton icon="pi pi-pencil" (click)="editProducto(producto)" style="margin-right: .5em"></button>
+        <button pButton icon="pi pi-trash" class="p-button-danger" (click)="deleteProducto(producto)"></button>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+
+<p-dialog header="Producto" [(visible)]="productoDialog" [modal]="true" [closable]="false" [style]="{width: '400px'}">
+  <form (ngSubmit)="saveProducto()" #form="ngForm">
+    <div class="p-fluid">
+      <div class="p-field">
+        <label for="codigo">Código</label>
+        <input id="codigo" type="text" pInputText [(ngModel)]="producto.codigo" name="codigo" />
+      </div>
+      <div class="p-field">
+        <label for="descripcion">Descripción</label>
+        <input id="descripcion" type="text" pInputText [(ngModel)]="producto.descripcion" name="descripcion" required />
+        <div *ngIf="submitted && !producto.descripcion" class="p-error">La descripción es obligatoria</div>
+      </div>
+      <div class="p-field">
+        <label for="marca">Marca</label>
+        <p-dropdown [options]="marcas" [(ngModel)]="producto.marca_id" name="marca_id" optionLabel="nombre" optionValue="id" placeholder="Seleccione una marca" [showClear]="true"></p-dropdown>
+      </div>
+      <div class="p-field">
+        <label for="rubro">Rubro</label>
+        <p-dropdown [options]="rubros" [(ngModel)]="producto.rubro_id" name="rubro_id" optionLabel="nombre" optionValue="id" placeholder="Seleccione un rubro" [showClear]="true"></p-dropdown>
+      </div>
+      <div class="p-field">
+        <label for="tipo">Tipo de Producto</label>
+        <p-dropdown [options]="tiposProducto" [(ngModel)]="producto.tipo_producto_id" name="tipo_producto_id" optionLabel="nombre" optionValue="id" placeholder="Seleccione un tipo" [showClear]="true"></p-dropdown>
+      </div>
+      <div class="p-field">
+        <label for="proveedor">Proveedor</label>
+        <p-dropdown [options]="proveedores" [(ngModel)]="producto.proveedor_id" name="proveedor_id" optionLabel="nombre" optionValue="id" placeholder="Seleccione un proveedor" [showClear]="true"></p-dropdown>
+      </div>
+    </div>
+    <div class="p-dialog-footer">
+      <button pButton type="submit" label="Guardar" [disabled]="form.invalid"></button>
+      <button pButton type="button" label="Cancelar" class="p-button-secondary" (click)="hideDialog()"></button>
+    </div>
+  </form>
+</p-dialog>

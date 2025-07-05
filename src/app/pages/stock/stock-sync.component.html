@@ -1,0 +1,4 @@
+<div class="card p-6">
+  <button pButton label="Sincronizar consumos externos" icon="pi pi-refresh" (click)="sync()" [disabled]="loading"></button>
+  <p *ngIf="message" class="mt-3">{{ message }}</p>
+</div>

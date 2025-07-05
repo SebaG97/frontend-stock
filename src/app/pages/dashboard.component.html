@@ -1,0 +1,106 @@
+
+
+
+
+
+<div class="dashboard-wrapper flex flex-column gap-4">
+  <!-- Fila de estadísticas -->
+  <div class="flex flex-row gap-3 mb-2 flex-wrap">
+    <div class="flex-1 min-w-0">
+      <div class="card p-3 cursor-pointer hover:bg-gray-50 transition-colors transition-duration-200" (click)="irAStock()" pTooltip="Ver stock">
+        <div class="flex justify-content-between align-items-center">
+          <div>
+            <span class="block text-500 font-medium mb-1">Productos Totales</span>
+            <div class="text-900 font-medium text-xl mb-0">{{ stock.length }}</div>
+          </div>
+          <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:2rem;height:2rem;">
+            <i class="pi pi-box text-blue-500 text-lg"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="card p-3 cursor-pointer hover:bg-gray-50 transition-colors transition-duration-200" (click)="irAMovimientos()" pTooltip="Ver movimientos">
+        <div class="flex justify-content-between align-items-center">
+          <div>
+            <span class="block text-500 font-medium mb-1">En Alerta</span>
+            <div class="text-900 font-medium text-xl mb-0">{{ alertas.length }}</div>
+          </div>
+          <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:2rem;height:2rem;">
+            <i class="pi pi-exclamation-triangle text-orange-500 text-lg"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="card p-3 cursor-pointer hover:bg-gray-50 transition-colors transition-duration-200" routerLink="/stock-sync" pTooltip="Sincronizar stock">
+        <div class="flex justify-content-between align-items-center">
+          <div>
+            <span class="block text-500 font-medium mb-1">Sincronización</span>
+            <div class="text-900 font-medium text-xl mb-0">API</div>
+          </div>
+          <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:2rem;height:2rem;">
+            <i class="pi pi-refresh text-green-500 text-lg"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="card p-3">
+        <div class="flex justify-content-between align-items-center">
+          <div>
+            <span class="block text-500 font-medium mb-1">Estado</span>
+            <div class="text-900 font-medium text-xl mb-0">
+              <span class="text-green-500">OK</span>
+            </div>
+          </div>
+          <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:2rem;height:2rem;">
+            <i class="pi pi-chart-line text-green-500 text-lg"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Fila de productos en alerta y acciones rápidas -->
+  <div class="flex flex-column md:flex-row gap-4">
+    <div class="flex-1 min-w-0 order-1 md:order-1" style="min-width:320px;">
+      <div class="card p-4 h-full">
+        <div class="flex justify-content-between align-items-center mb-2">
+          <h5 class="m-0 text-base">Productos en alerta</h5>
+          <button pButton label="Ver stock" icon="pi pi-arrow-right" class="p-button-text p-button-sm" (click)="irAStock()"></button>
+        </div>
+        <div *ngIf="alertas.length === 0" class="text-center py-2">
+          <i class="pi pi-check-circle text-green-500 text-2xl mb-2"></i>
+          <p class="text-gray-500 m-0 text-sm">No hay productos en alerta de stock</p>
+        </div>
+        <div *ngFor="let row of alertas" class="border-bottom-1 surface-border pb-2 mb-2 cursor-pointer hover:bg-gray-50 p-2 border-round transition-colors transition-duration-200">
+          <div class="flex justify-content-between align-items-center">
+            <div class="flex-1">
+              <span class="font-semibold text-900 text-sm">{{ row.producto?.descripcion || '-' }}</span>
+              <div class="flex align-items-center gap-2 text-600 text-xs mt-1">
+                <span><i class="pi pi-database mr-1"></i>{{ row.deposito?.nombre || '-' }}</span>
+                <span><i class="pi pi-box mr-1"></i>{{ row.existencia }} en stock</span>
+                <span><i class="pi pi-exclamation-triangle mr-1"></i>Mín: {{ row.stock_minimo }}</span>
+              </div>
+            </div>
+            <div class="text-right ml-2">
+              <p-tag value="Bajo" severity="danger" rounded="true" *ngIf="row.existencia <= row.stock_minimo"></p-tag>
+              <p-tag value="Cerca" severity="warning" rounded="true" *ngIf="row.existencia > row.stock_minimo && row.existencia <= row.stock_minimo + max(1, row.stock_minimo * 0.1)"></p-tag>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="min-w-0 order-2 md:order-2" style="min-width:260px;max-width:340px;width:100%;">
+      <div class="card p-4 h-full">
+        <h5 class="mb-2 text-base">Acciones Rápidas</h5>
+        <div class="flex flex-column gap-2">
+          <button pButton label="Nuevo Producto" icon="pi pi-plus" class="p-button-outlined p-button-success p-button-sm"></button>
+          <button pButton label="Nuevo Movimiento" icon="pi pi-exchange" class="p-button-outlined p-button-info p-button-sm"></button>
+          <button pButton label="Sincronizar Stock" icon="pi pi-refresh" class="p-button-outlined p-button-warning p-button-sm" routerLink="/stock-sync"></button>
+          <button pButton label="Ver Reportes" icon="pi pi-chart-bar" class="p-button-outlined p-button-sm"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

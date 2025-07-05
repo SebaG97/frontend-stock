@@ -25,6 +25,10 @@ export class AppMenu {
                 items: [
                     { label: 'Depósitos', icon: 'pi pi-fw pi-database', routerLink: ['/depositos'] },
                     { label: 'Estados', icon: 'pi pi-fw pi-flag', routerLink: ['/estados'] },
+                    { label: 'Productos', icon: 'pi pi-fw pi-shopping-cart', routerLink: ['/productos'] },
+                    { label: 'Stock', icon: 'pi pi-fw pi-box', routerLink: ['/stock'] },
+                    { label: 'Movimientos de Stock', icon: 'pi pi-fw pi-exchange', routerLink: ['/stock-movimientos'] },
+                    { label: 'Sincronizar Stock', icon: 'pi pi-fw pi-refresh', routerLink: ['/stock-sync'] },
                     { label: 'Marcas', icon: 'pi pi-fw pi-tag', routerLink: ['/marcas'] },
                     { label: 'Procedencias', icon: 'pi pi-fw pi-globe', routerLink: ['/procedencias'] },
                     { label: 'Línea de Productos', icon: 'pi pi-fw pi-list', routerLink: ['/producto-lineas'] },

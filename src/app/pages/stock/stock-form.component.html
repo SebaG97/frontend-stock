@@ -1,0 +1,22 @@
+<form (ngSubmit)="onSave()" #form="ngForm" class="p-fluid">
+  <div class="field">
+    <label for="producto">Producto *</label>
+    <p-dropdown [options]="productos" optionLabel="descripcion" optionValue="id" [(ngModel)]="stock.producto_id" name="producto_id" required></p-dropdown>
+  </div>
+  <div class="field">
+    <label for="deposito">Depósito *</label>
+    <p-dropdown [options]="depositos" optionLabel="nombre" optionValue="id" [(ngModel)]="stock.deposito_id" name="deposito_id" required></p-dropdown>
+  </div>
+  <div class="field">
+    <label for="existencia">Existencia *</label>
+    <input type="number" pInputText [(ngModel)]="stock.existencia" name="existencia" required min="0">
+  </div>
+  <div class="field">
+    <label for="stock_minimo">Stock mínimo</label>
+    <input type="number" pInputText [(ngModel)]="stock.stock_minimo" name="stock_minimo" min="0">
+  </div>
+  <div class="flex justify-content-end gap-2 mt-4">
+    <button pButton type="button" label="Cancelar" class="p-button-text" (click)="cancel.emit()"></button>
+    <button pButton type="submit" label="Guardar" [disabled]="form.invalid"></button>
+  </div>
+</form>
