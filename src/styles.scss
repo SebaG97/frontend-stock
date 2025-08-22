@@ -2,3 +2,73 @@
 @use './tailwind.css';
 @use './assets/layout/layout.scss';
 @use 'primeicons/primeicons.css';
+
+/* Estilos globales para botones PrimeNG */
+.p-button.p-button-outlined {
+  background-color: transparent !important;
+  border-width: 2px !important;
+  
+  &.p-button-success {
+    color: #10b981 !important;
+    border-color: #10b981 !important;
+    background-color: transparent !important;
+    
+    &:enabled:hover {
+      background-color: #10b981 !important;
+      color: white !important;
+      border-color: #10b981 !important;
+    }
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.5) !important;
+    }
+  }
+  
+  &.p-button-secondary {
+    color: #6b7280 !important;
+    border-color: #6b7280 !important;
+    background-color: transparent !important;
+    
+    &:enabled:hover {
+      background-color: #6b7280 !important;
+      color: white !important;
+      border-color: #6b7280 !important;
+    }
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(107, 114, 128, 0.5) !important;
+    }
+  }
+  
+  &.p-button-danger {
+    color: #ef4444 !important;
+    border-color: #ef4444 !important;
+    background-color: transparent !important;
+    
+    &:enabled:hover {
+      background-color: #ef4444 !important;
+      color: white !important;
+      border-color: #ef4444 !important;
+    }
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.5) !important;
+    }
+  }
+  
+  &.p-button-info {
+    color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+    background-color: transparent !important;
+    
+    &:enabled:hover {
+      background-color: #3b82f6 !important;
+      color: white !important;
+      border-color: #3b82f6 !important;
+    }
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.5) !important;
+    }
+  }
+}

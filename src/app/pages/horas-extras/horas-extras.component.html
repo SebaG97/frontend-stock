@@ -1,0 +1,542 @@
+<div class="container mx-auto p-4 sm:p-6">
+  <!-- Header con título y acciones principales -->
+  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Horas Extras - Técnicos</h1>
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+      <p-button 
+        label="Sincronizar" 
+        icon="pi pi-refresh" 
+        severity="info"
+        [loading]="sincronizando"
+        (onClick)="sincronizar()"
+        class="w-full sm:w-auto"
+        pTooltip="Sincronizar partes de trabajo">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Cards de resumen -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" *ngIf="reporte">
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="text-center p-3 bg-blue-50">
+          <i class="pi pi-clock text-4xl text-blue-500"></i>
+        </div>
+      </ng-template>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-blue-600">{{ getTotalHorasTrabajadas() | number:'1.1-1' }}</div>
+        <div class="text-sm text-gray-600">Total Horas Trabajadas</div>
+      </div>
+    </p-card>
+
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="text-center p-3 bg-green-50">
+          <i class="pi pi-calendar-plus text-4xl text-green-500"></i>
+        </div>
+      </ng-template>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-green-600">{{ getTotalHorasExtrasNormales() | number:'1.1-1' }}</div>
+        <div class="text-sm text-gray-600">Horas Extras Normales</div>
+      </div>
+    </p-card>
+
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="text-center p-3 bg-orange-50">
+          <i class="pi pi-calendar-times text-4xl text-orange-500"></i>
+        </div>
+      </ng-template>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-orange-600">{{ getTotalHorasExtrasEspeciales() | number:'1.1-1' }}</div>
+        <div class="text-sm text-gray-600">Horas Extras Especiales</div>
+      </div>
+    </p-card>
+
+    <p-card>
+      <ng-template pTemplate="header">
+        <div class="text-center p-3 bg-purple-50">
+          <i class="pi pi-file text-4xl text-purple-500"></i>
+        </div>
+      </ng-template>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-purple-600">{{ getTotalPartes() }}</div>
+        <div class="text-sm text-gray-600">Partes Trabajados</div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Panel de filtros -->
+  <p-card class="mb-6">
+    <ng-template pTemplate="header">
+      <div class="flex items-center p-3">
+        <i class="pi pi-filter text-lg mr-2"></i>
+        <span class="font-semibold">Filtros de Búsqueda</span>
+      </div>
+    </ng-template>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Fecha Inicio -->
+      <div class="field">
+        <label for="fechaInicio" class="block text-sm font-medium mb-2">Fecha Inicio</label>
+        <input 
+          type="date"
+          id="fechaInicio"
+          [(ngModel)]="fechaInicioString" 
+          placeholder="Seleccionar fecha"
+          class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors">
+      </div>
+
+      <!-- Fecha Fin -->
+      <div class="field">
+        <label for="fechaFin" class="block text-sm font-medium mb-2">Fecha Fin</label>
+        <input 
+          type="date"
+          id="fechaFin"
+          [(ngModel)]="fechaFinString" 
+          placeholder="Seleccionar fecha"
+          class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none transition-colors">
+      </div>
+
+      <!-- Técnico -->
+      <div class="field">
+        <label for="tecnico" class="block text-sm font-medium mb-2">Técnico</label>
+        <p-dropdown 
+          id="tecnico"
+          [(ngModel)]="tecnicoSeleccionado"
+          [options]="tecnicos"
+          placeholder="Todos los técnicos"
+          [showClear]="true"
+          optionLabel="nombre_completo">
+        </p-dropdown>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="field">
+        <label class="block text-sm font-medium mb-2 opacity-0">Acciones</label>
+        <div class="flex gap-4">
+          <!-- Botón Buscar - Contenedor separado a la izquierda -->
+          <div class="flex-1">
+            <p-button 
+              label="Buscar" 
+              icon="pi pi-search" 
+              severity="primary"
+              (onClick)="cargarReporte()"
+              class="w-full h-full">
+            </p-button>
+          </div>
+          
+          <!-- Botones secundarios apilados a la derecha -->
+          <div class="flex flex-col gap-2 flex-1">
+            <p-button 
+              label="Período" 
+              icon="pi pi-calendar" 
+              severity="success"
+              [outlined]="true"
+              (onClick)="aplicarPeriodoActual()"
+              class="w-full"
+              pTooltip="Aplicar período actual (21 del mes pasado al 20 del mes actual)">
+            </p-button>
+            <p-button 
+              label="Ver Todos" 
+              icon="pi pi-list" 
+              severity="secondary"
+              [outlined]="true"
+              (onClick)="verTodosLosDatos()"
+              class="w-full"
+              pTooltip="Quitar filtros de fecha - ver todos">
+            </p-button>
+            <p-button 
+              label="Limpiar" 
+              icon="pi pi-times" 
+              severity="danger"
+              [outlined]="true"
+              (onClick)="limpiarTodo()"
+              class="w-full"
+              pTooltip="Limpiar todos los filtros">
+            </p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Tabla principal -->
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="flex items-center justify-between p-3">
+        <div class="flex items-center">
+          <i class="pi pi-table text-lg mr-2"></i>
+          <span class="font-semibold">Resumen por Técnico</span>
+        </div>
+        <div *ngIf="reporte" class="text-sm text-gray-600">
+          {{ reporte.resumen.length }} técnico(s) encontrado(s)
+        </div>
+      </div>
+    </ng-template>
+
+    <p-table 
+      [value]="reporte?.resumen || []" 
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      styleClass="p-datatable-striped"
+      [tableStyle]="{'min-width': '80rem'}">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="tecnico_nombre" class="text-left">
+            Técnico <p-sortIcon field="tecnico_nombre"></p-sortIcon>
+          </th>
+          <th pSortableColumn="total_horas_trabajadas" class="text-center">
+            Horas Trabajadas <p-sortIcon field="total_horas_trabajadas"></p-sortIcon>
+          </th>
+          <th pSortableColumn="horas_normales" class="text-center">
+            Horas Normales <p-sortIcon field="horas_normales"></p-sortIcon>
+          </th>
+          <th pSortableColumn="total_horas_extras_normales" class="text-center">
+            H. Extras Normales <p-sortIcon field="total_horas_extras_normales"></p-sortIcon>
+          </th>
+          <th pSortableColumn="total_horas_extras_especiales" class="text-center">
+            H. Extras Especiales <p-sortIcon field="total_horas_extras_especiales"></p-sortIcon>
+          </th>
+          <th pSortableColumn="partes_trabajados" class="text-center">
+            Partes <p-sortIcon field="partes_trabajados"></p-sortIcon>
+          </th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-resumen>
+        <tr>
+          <td class="font-medium">{{ resumen.tecnico_nombre }}</td>
+          <td class="text-center">
+            <p-tag 
+              [value]="(resumen.total_horas_trabajadas | number:'1.1-1') + 'h'"
+              severity="info">
+            </p-tag>
+          </td>
+          <td class="text-center">{{ resumen.horas_normales | number:'1.1-1' }}h</td>
+          <td class="text-center">
+            <p-tag 
+              [value]="(resumen.total_horas_extras_normales | number:'1.1-1') + 'h'"
+              [severity]="getSeverityForHorasExtras(resumen.total_horas_extras_normales)">
+            </p-tag>
+          </td>
+          <td class="text-center">
+            <p-tag 
+              [value]="(resumen.total_horas_extras_especiales | number:'1.1-1') + 'h'"
+              [severity]="getSeverityForHorasExtras(resumen.total_horas_extras_especiales)">
+            </p-tag>
+          </td>
+          <td class="text-center">
+            <span class="font-medium">{{ resumen.partes_trabajados }}</span>
+          </td>
+          <td class="text-center">
+            <div class="flex gap-2 justify-center">
+              <p-button 
+                icon="pi pi-list" 
+                severity="info"
+                [outlined]="true"
+                size="small"
+                (onClick)="verPartesTrabajo(resumen)"
+                pTooltip="Ver partes de trabajo"
+                tooltipPosition="top">
+              </p-button>
+              <p-button 
+                icon="pi pi-eye" 
+                severity="secondary"
+                [outlined]="true"
+                size="small"
+                (onClick)="verDetalle(resumen)"
+                pTooltip="Ver detalle completo"
+                tooltipPosition="top">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center py-8">
+            <div class="flex flex-col items-center">
+              <i class="pi pi-info-circle text-4xl text-gray-400 mb-3"></i>
+              <p class="text-gray-500">No se encontraron registros</p>
+              <p class="text-sm text-gray-400 mt-1">Ajusta los filtros para ver más resultados</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<!-- Modal de detalle -->
+<p-dialog 
+  [(visible)]="mostrarDetalle" 
+  [modal]="true" 
+  [style]="{width: '90vw', maxWidth: '1200px'}"
+  [header]="'Detalle de ' + (detalleSeleccionado?.tecnico?.nombre || '') + ' ' + (detalleSeleccionado?.tecnico?.apellido || '')"
+  [closable]="true">
+  
+  <div *ngIf="loadingDetalle" class="text-center py-8">
+    <p-progressSpinner></p-progressSpinner>
+    <p class="text-gray-500 mt-3">Cargando detalle...</p>
+  </div>
+
+  <div *ngIf="!loadingDetalle && detalleSeleccionado">
+    <!-- Resumen del técnico -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <p-card>
+        <div class="text-center">
+          <div class="text-xl font-bold text-blue-600">{{ detalleSeleccionado.totales.total_horas_trabajadas | number:'1.1-1' }}h</div>
+          <div class="text-sm text-gray-600">Total Trabajadas</div>
+        </div>
+      </p-card>
+      <p-card>
+        <div class="text-center">
+          <div class="text-xl font-bold text-green-600">{{ detalleSeleccionado.totales.total_horas_normales | number:'1.1-1' }}h</div>
+          <div class="text-sm text-gray-600">Horas Normales</div>
+        </div>
+      </p-card>
+      <p-card>
+        <div class="text-center">
+          <div class="text-xl font-bold text-orange-600">{{ detalleSeleccionado.totales.total_horas_extras_normales | number:'1.1-1' }}h</div>
+          <div class="text-sm text-gray-600">Extras Normales</div>
+        </div>
+      </p-card>
+      <p-card>
+        <div class="text-center">
+          <div class="text-xl font-bold text-red-600">{{ detalleSeleccionado.totales.total_horas_extras_especiales | number:'1.1-1' }}h</div>
+          <div class="text-sm text-gray-600">Extras Especiales</div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Tabla de partes detallados -->
+    <p-table 
+      [value]="detalleSeleccionado.partes" 
+      [paginator]="true"
+      [rows]="10"
+      styleClass="p-datatable-striped p-datatable-sm">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Fecha</th>
+          <th>Hora Inicio</th>
+          <th>Hora Fin</th>
+          <th>Cliente</th>
+          <th>Horas Normales</th>
+          <th>H. Extras Normales</th>
+          <th>H. Extras Especiales</th>
+          <th>Descripción</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-parte>
+        <tr>
+          <td>{{ parte.fecha | date:'dd/MM/yyyy' }}</td>
+          <td>{{ parte.hora_inicio }}</td>
+          <td>{{ parte.hora_fin }}</td>
+          <td>{{ parte.cliente }}</td>
+          <td class="text-center">{{ parte.horas_normales | number:'1.1-1' }}h</td>
+          <td class="text-center">
+            <span *ngIf="parte.horas_extras_normales > 0" 
+                  class="font-medium text-orange-600">
+              {{ parte.horas_extras_normales | number:'1.1-1' }}h
+            </span>
+            <span *ngIf="parte.horas_extras_normales === 0">-</span>
+          </td>
+          <td class="text-center">
+            <span *ngIf="parte.horas_extras_especiales > 0" 
+                  class="font-medium text-red-600">
+              {{ parte.horas_extras_especiales | number:'1.1-1' }}h
+            </span>
+            <span *ngIf="parte.horas_extras_especiales === 0">-</span>
+          </td>
+          <td>{{ parte.descripcion }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button 
+      label="Cerrar" 
+      icon="pi pi-times" 
+      severity="secondary"
+      (onClick)="mostrarDetalle = false">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Toast para mensajes -->
+<p-toast></p-toast>
+
+<!-- Modal de Partes de Trabajo -->
+<p-dialog 
+  header="Partes de Trabajo" 
+  [(visible)]="mostrarPartes"
+  [modal]="true"
+  [style]="{width: '90vw', maxWidth: '1200px'}"
+  [closable]="true"
+  [responsive]="true"
+  styleClass="dialog-partes">
+  
+  <div *ngIf="loadingPartes" class="text-center py-8">
+    <p-progressSpinner strokeWidth="4" fill="transparent" animationDuration="1s"></p-progressSpinner>
+    <p class="mt-3 text-gray-600">Cargando partes de trabajo...</p>
+  </div>
+
+  <div *ngIf="!loadingPartes && partesSeleccionadas.length > 0">
+    <!-- Header con información del técnico y resumen -->
+    <div class="mb-6">
+      <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+        <h3 class="text-lg font-semibold text-blue-900 mb-2">
+          <i class="pi pi-user mr-2"></i>{{ tecnicoPartesSeleccionado }}
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div class="text-center">
+            <div class="font-semibold text-blue-700">Total Partes</div>
+            <div class="text-xl font-bold text-blue-900">{{ partesSeleccionadas.length }}</div>
+          </div>
+          <div class="text-center">
+            <div class="font-semibold text-green-700">Horas Normales</div>
+            <div class="text-xl font-bold text-green-900">{{ getTotalHorasNormalesPartes() | number:'1.1-1' }}h</div>
+          </div>
+          <div class="text-center">
+            <div class="font-semibold text-orange-700">Horas Extras</div>
+            <div class="text-xl font-bold text-orange-900">{{ getTotalHorasExtrasPartes() | number:'1.1-1' }}h</div>
+          </div>
+          <div class="text-center">
+            <div class="font-semibold text-purple-700">Total Horas</div>
+            <div class="text-xl font-bold text-purple-900">{{ getTotalHorasPartes() | number:'1.1-1' }}h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de partes -->
+    <p-table 
+      [value]="partesSeleccionadas" 
+      [paginator]="true"
+      [rows]="15"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} partes"
+      [rowsPerPageOptions]="[10, 15, 25]"
+      styleClass="p-datatable-striped p-datatable-sm"
+      [scrollable]="true"
+      scrollHeight="400px">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="fecha" class="text-left" style="min-width: 100px">
+            Fecha <p-sortIcon field="fecha"></p-sortIcon>
+          </th>
+          <th pSortableColumn="parte" class="text-left" style="min-width: 120px">
+            N° Parte <p-sortIcon field="parte"></p-sortIcon>
+          </th>
+          <th pSortableColumn="cliente" class="text-left" style="min-width: 150px">
+            Cliente <p-sortIcon field="cliente"></p-sortIcon>
+          </th>
+          <th pSortableColumn="horas_trabajadas" class="text-center" style="min-width: 100px">
+            Total Horas <p-sortIcon field="horas_trabajadas"></p-sortIcon>
+          </th>
+          <th pSortableColumn="horas_normales" class="text-center" style="min-width: 100px">
+            H. Normales <p-sortIcon field="horas_normales"></p-sortIcon>
+          </th>
+          <th pSortableColumn="horas_extras_normales" class="text-center" style="min-width: 110px">
+            H.E. Normales <p-sortIcon field="horas_extras_normales"></p-sortIcon>
+          </th>
+          <th pSortableColumn="horas_extras_especiales" class="text-center" style="min-width: 120px">
+            H.E. Especiales <p-sortIcon field="horas_extras_especiales"></p-sortIcon>
+          </th>
+          <th pSortableColumn="descripcion" class="text-left" style="min-width: 200px">
+            Descripción <p-sortIcon field="descripcion"></p-sortIcon>
+          </th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-parte>
+        <tr>
+          <td>{{ formatearFecha(parte.fecha) }}</td>
+          <td class="font-mono font-medium">{{ parte.parte }}</td>
+          <td class="font-medium">{{ parte.cliente || 'Sin cliente' }}</td>
+          <td class="text-center">
+            <p-tag 
+              [value]="(parte.horas_trabajadas | number:'1.1-1') + 'h'"
+              severity="info">
+            </p-tag>
+          </td>
+          <td class="text-center">
+            <span class="font-medium">{{ parte.horas_normales | number:'1.1-1' }}h</span>
+          </td>
+          <td class="text-center">
+            <p-tag 
+              *ngIf="parte.horas_extras_normales > 0"
+              [value]="(parte.horas_extras_normales | number:'1.1-1') + 'h'"
+              severity="warning">
+            </p-tag>
+            <span *ngIf="parte.horas_extras_normales === 0" class="text-gray-400">-</span>
+          </td>
+          <td class="text-center">
+            <p-tag 
+              *ngIf="parte.horas_extras_especiales > 0"
+              [value]="(parte.horas_extras_especiales | number:'1.1-1') + 'h'"
+              severity="danger">
+            </p-tag>
+            <span *ngIf="parte.horas_extras_especiales === 0" class="text-gray-400">-</span>
+          </td>
+          <td>
+            <span class="text-sm" [title]="parte.descripcion">
+              {{ parte.descripcion | slice:0:50 }}{{ parte.descripcion && parte.descripcion.length > 50 ? '...' : '' }}
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center py-8">
+            <div class="flex flex-col items-center">
+              <i class="pi pi-info-circle text-4xl text-gray-400 mb-3"></i>
+              <p class="text-gray-500">No se encontraron partes de trabajo</p>
+              <p class="text-sm text-gray-400 mt-1">El técnico no tiene partes en el período seleccionado</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div *ngIf="!loadingPartes && partesSeleccionadas.length === 0" class="text-center py-8">
+    <div class="flex flex-col items-center">
+      <i class="pi pi-info-circle text-4xl text-gray-400 mb-3"></i>
+      <p class="text-gray-500">No se encontraron partes de trabajo</p>
+      <p class="text-sm text-gray-400 mt-1">{{ tecnicoPartesSeleccionado }} no tiene partes en el período seleccionado</p>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex gap-2">
+      <p-button 
+        label="Exportar" 
+        icon="pi pi-download" 
+        severity="info"
+        [outlined]="true"
+        (onClick)="exportarDatos()"
+        [disabled]="partesSeleccionadas.length === 0">
+      </p-button>
+      <p-button 
+        label="Cerrar" 
+        icon="pi pi-times" 
+        severity="secondary"
+        (onClick)="mostrarPartes = false">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>

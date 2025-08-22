@@ -36,6 +36,20 @@ export class AppMenu {
                     { label: 'Rubros', icon: 'pi pi-fw pi-th-large', routerLink: ['/rubros'] },
                     { label: 'Tipos de Producto', icon: 'pi pi-fw pi-box', routerLink: ['/tipos-producto'] }
                 ]
+            },
+            {
+                separator: true
+            },
+            {
+                label: 'Recursos Humanos',
+                items: [
+                    { 
+                        label: 'Horas Extras', 
+                        icon: 'pi pi-fw pi-clock', 
+                        routerLink: ['/horas-extras'],
+                        title: 'Gestión de horas extras de técnicos'
+                    }
+                ]
             }
         ];
     }

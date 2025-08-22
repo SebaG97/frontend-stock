@@ -21,7 +21,8 @@ export const appRoutes: Routes = [
             { path: 'tipos-producto', loadComponent: () => import('./app/pages/tipos-producto/tipos-producto.component').then(m => m.TiposProductoComponent) },
             { path: 'stock', loadComponent: () => import('./app/pages/stock/stock-list.component').then(m => m.StockListComponent) },
             { path: 'stock-movimientos', loadComponent: () => import('./app/pages/stock/stock-movimientos.component').then(m => m.StockMovimientosComponent) },
-            { path: 'stock-sync', loadComponent: () => import('./app/pages/stock/stock-sync.component').then(m => m.StockSyncComponent) }
+            { path: 'stock-sync', loadComponent: () => import('./app/pages/stock/stock-sync.component').then(m => m.StockSyncComponent) },
+            { path: 'horas-extras', loadComponent: () => import('./app/pages/horas-extras/horas-extras.component').then(m => m.HorasExtrasComponent) }
         ]
     },
 ];
