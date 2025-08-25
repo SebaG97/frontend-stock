@@ -1,0 +1,223 @@
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>{{ isEditMode ? 'Editar' : 'Nueva' }} Orden de Trabajo</h2>
+        <button class="btn btn-outline-secondary" (click)="onCancel()">
+          <i class="fas fa-arrow-left"></i> Volver
+        </button>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div class="alert alert-danger" *ngIf="error">
+        {{ error }}
+      </div>
+
+      <!-- Loading spinner -->
+      <div class="text-center py-4" *ngIf="loading">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <div class="card" *ngIf="!loading">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-clipboard-list"></i>
+            Información de la Orden de Trabajo
+          </h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="row">
+              <!-- ID API Externa -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">ID API Externa</label>
+                <input 
+                  type="text" 
+                  class="form-control"
+                  formControlName="id_api_externa"
+                  placeholder="Ej: EXT-001">
+                <small class="form-text text-muted">
+                  Identificador opcional del sistema externo
+                </small>
+              </div>
+
+              <!-- Técnico -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Técnico <span class="text-danger">*</span></label>
+                <select 
+                  class="form-select"
+                  formControlName="tecnico_id"
+                  [class.is-invalid]="isFieldInvalid('tecnico_id')">
+                  <option value="">Seleccione un técnico</option>
+                  <option *ngFor="let tecnico of tecnicos" [value]="tecnico.id">
+                    {{ tecnico.nombre_completo }}
+                  </option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('tecnico_id')">
+                  {{ getFieldError('tecnico_id') }}
+                </div>
+              </div>
+
+              <!-- Cliente -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Cliente <span class="text-danger">*</span></label>
+                <input 
+                  type="text" 
+                  class="form-control"
+                  formControlName="cliente"
+                  placeholder="Nombre del cliente"
+                  [class.is-invalid]="isFieldInvalid('cliente')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('cliente')">
+                  {{ getFieldError('cliente') }}
+                </div>
+              </div>
+
+              <!-- Estado -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Estado <span class="text-danger">*</span></label>
+                <select 
+                  class="form-select"
+                  formControlName="estado"
+                  [class.is-invalid]="isFieldInvalid('estado')">
+                  <option *ngFor="let estado of estadosDisponibles" [value]="estado">
+                    {{ formatearEstado(estado) }}
+                  </option>
+                </select>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('estado')">
+                  {{ getFieldError('estado') }}
+                </div>
+              </div>
+
+              <!-- Fecha de inicio -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Fecha de Inicio <span class="text-danger">*</span></label>
+                <input 
+                  type="date" 
+                  class="form-control"
+                  formControlName="fecha_inicio"
+                  [class.is-invalid]="isFieldInvalid('fecha_inicio')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('fecha_inicio')">
+                  {{ getFieldError('fecha_inicio') }}
+                </div>
+              </div>
+
+              <!-- Fecha de fin -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Fecha de Fin</label>
+                <input 
+                  type="date" 
+                  class="form-control"
+                  formControlName="fecha_fin">
+                <small class="form-text text-muted">
+                  Opcional. Se puede completar cuando termine el trabajo
+                </small>
+              </div>
+
+              <!-- Descripción -->
+              <div class="col-12 mb-3">
+                <label class="form-label">Descripción del Trabajo <span class="text-danger">*</span></label>
+                <textarea 
+                  class="form-control"
+                  formControlName="descripcion"
+                  rows="3"
+                  placeholder="Descripción detallada del trabajo a realizar..."
+                  [class.is-invalid]="isFieldInvalid('descripcion')"></textarea>
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('descripcion')">
+                  {{ getFieldError('descripcion') }}
+                </div>
+              </div>
+
+              <!-- Sección de Horas -->
+              <div class="col-12 mb-3">
+                <h6 class="border-bottom pb-2">Registro de Horas</h6>
+              </div>
+
+              <!-- Horas normales -->
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Horas Normales</label>
+                <input 
+                  type="number" 
+                  class="form-control"
+                  formControlName="horas_normales"
+                  min="0"
+                  step="0.5"
+                  placeholder="0"
+                  [class.is-invalid]="isFieldInvalid('horas_normales')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('horas_normales')">
+                  {{ getFieldError('horas_normales') }}
+                </div>
+              </div>
+
+              <!-- Horas extras normales -->
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Horas Extras Normales</label>
+                <input 
+                  type="number" 
+                  class="form-control"
+                  formControlName="horas_extras_normales"
+                  min="0"
+                  step="0.5"
+                  placeholder="0"
+                  [class.is-invalid]="isFieldInvalid('horas_extras_normales')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('horas_extras_normales')">
+                  {{ getFieldError('horas_extras_normales') }}
+                </div>
+              </div>
+
+              <!-- Horas extras especiales -->
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Horas Extras Especiales</label>
+                <input 
+                  type="number" 
+                  class="form-control"
+                  formControlName="horas_extras_especiales"
+                  min="0"
+                  step="0.5"
+                  placeholder="0"
+                  [class.is-invalid]="isFieldInvalid('horas_extras_especiales')">
+                <div class="invalid-feedback" *ngIf="isFieldInvalid('horas_extras_especiales')">
+                  {{ getFieldError('horas_extras_especiales') }}
+                </div>
+              </div>
+
+              <!-- Total de horas (calculado) -->
+              <div class="col-12 mb-3">
+                <div class="alert alert-info">
+                  <strong>Total de Horas: {{ totalHoras }}h</strong>
+                </div>
+              </div>
+
+              <!-- Observaciones -->
+              <div class="col-12 mb-3">
+                <label class="form-label">Observaciones</label>
+                <textarea 
+                  class="form-control"
+                  formControlName="observaciones"
+                  rows="2"
+                  placeholder="Observaciones adicionales..."></textarea>
+              </div>
+            </div>
+
+            <!-- Botones de acción -->
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" (click)="onCancel()">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+              <button 
+                type="submit" 
+                class="btn btn-primary"
+                [disabled]="form.invalid || loading">
+                <i class="fas fa-save"></i>
+                {{ isEditMode ? 'Actualizar' : 'Crear' }} Orden
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

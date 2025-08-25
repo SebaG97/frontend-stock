@@ -7,7 +7,7 @@ import {
   ParteTrabajoCreate,
   ParteTrabajoUpdate,
   EstadoParteTrabajo,
-  Tecnico 
+  TecnicoSimple 
 } from '../../../models/partes-trabajo.model';
 import { PartesTrabajoService } from '../../../services/partes-trabajo.service';
 
@@ -24,8 +24,13 @@ export class ParteTrabajoFormComponent implements OnInit {
   parteId: number | null = null;
   loading = false;
   error: string | null = null;
-  tecnicos: Tecnico[] = [];
-  estadosDisponibles: EstadoParteTrabajo[] = [];
+  tecnicos: TecnicoSimple[] = [];
+  estadosDisponibles = [
+    { label: 'Pendiente', value: 1 },
+    { label: 'En Proceso', value: 2 },
+    { label: 'Completado', value: 3 },
+    { label: 'Cancelado', value: 4 }
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -33,7 +38,6 @@ export class ParteTrabajoFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
-    this.estadosDisponibles = this.partesTrabajoService.getEstadosDisponibles();
     this.form = this.createForm();
   }
 
@@ -51,17 +55,18 @@ export class ParteTrabajoFormComponent implements OnInit {
 
   createForm(): FormGroup {
     return this.fb.group({
-      id_api_externa: [''],
-      tecnico_id: ['', Validators.required],
-      cliente: ['', Validators.required],
-      fecha_inicio: ['', Validators.required],
-      fecha_fin: [''],
-      descripcion: ['', [Validators.required, Validators.minLength(10)]],
-      estado: [EstadoParteTrabajo.PENDIENTE, Validators.required],
-      horas_normales: [0, [Validators.min(0)]],
-      horas_extras_normales: [0, [Validators.min(0)]],
-      horas_extras_especiales: [0, [Validators.min(0)]],
-      observaciones: ['']
+      id_parte_api: [''],
+      numero: [0, [Validators.required, Validators.min(1)]],
+      ejercicio: [new Date().getFullYear().toString(), Validators.required],
+      fecha: ['', Validators.required],
+      hora_ini: [''],
+      hora_fin: [''],
+      trabajo_solicitado: ['', [Validators.required, Validators.minLength(10)]],
+      estado: [1, Validators.required],
+      cliente_empresa: [''],
+      notas: [''],
+      archivado: [false],
+      firmado: [false]
     });
   }
 
@@ -69,24 +74,25 @@ export class ParteTrabajoFormComponent implements OnInit {
     if (!this.parteId) return;
 
     this.loading = true;
-    this.partesTrabajoService.getParteTrabajo(this.parteId).subscribe({
-      next: (parte) => {
+    this.partesTrabajoService.getParteTrabajoById(this.parteId).subscribe({
+      next: (parte: ParteTrabajo) => {
         this.form.patchValue({
-          id_api_externa: parte.id_api_externa || '',
-          tecnico_id: parte.tecnico_id,
-          cliente: parte.cliente,
-          fecha_inicio: this.formatDateForInput(parte.fecha_inicio),
-          fecha_fin: parte.fecha_fin ? this.formatDateForInput(parte.fecha_fin) : '',
-          descripcion: parte.descripcion,
+          id_parte_api: parte.id_parte_api || '',
+          numero: parte.numero,
+          ejercicio: parte.ejercicio,
+          fecha: this.formatDateForInput(parte.fecha),
+          hora_ini: parte.hora_ini || '',
+          hora_fin: parte.hora_fin || '',
+          trabajo_solicitado: parte.trabajo_solicitado,
           estado: parte.estado,
-          horas_normales: parte.horas_normales || 0,
-          horas_extras_normales: parte.horas_extras_normales || 0,
-          horas_extras_especiales: parte.horas_extras_especiales || 0,
-          observaciones: parte.observaciones || ''
+          cliente_empresa: parte.cliente_empresa || '',
+          notas: parte.notas || '',
+          archivado: parte.archivado,
+          firmado: parte.firmado
         });
         this.loading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         this.error = 'Error al cargar la orden de trabajo';
         console.error('Error:', error);
         this.loading = false;
@@ -97,12 +103,9 @@ export class ParteTrabajoFormComponent implements OnInit {
   loadTecnicos(): void {
     this.partesTrabajoService.getTecnicos().subscribe({
       next: (tecnicos) => {
-        this.tecnicos = tecnicos.map(t => ({
-          ...t,
-          nombre_completo: `${t.nombre} ${t.apellido}`
-        }));
+        this.tecnicos = tecnicos;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error al cargar técnicos:', error);
       }
     });
@@ -122,15 +125,14 @@ export class ParteTrabajoFormComponent implements OnInit {
     if (this.isEditMode && this.parteId) {
       const updateData: ParteTrabajoUpdate = {
         ...formData,
-        fecha_inicio: this.formatDateForApi(formData.fecha_inicio),
-        fecha_fin: formData.fecha_fin ? this.formatDateForApi(formData.fecha_fin) : undefined
+        fecha: this.formatDateForApi(formData.fecha)
       };
 
       this.partesTrabajoService.updateParteTrabajo(this.parteId, updateData).subscribe({
         next: () => {
           this.router.navigate(['/partes-trabajo']);
         },
-        error: (error) => {
+        error: (error: any) => {
           this.error = 'Error al actualizar la orden de trabajo';
           console.error('Error:', error);
           this.loading = false;
@@ -139,15 +141,14 @@ export class ParteTrabajoFormComponent implements OnInit {
     } else {
       const createData: ParteTrabajoCreate = {
         ...formData,
-        fecha_inicio: this.formatDateForApi(formData.fecha_inicio),
-        fecha_fin: formData.fecha_fin ? this.formatDateForApi(formData.fecha_fin) : undefined
+        fecha: this.formatDateForApi(formData.fecha)
       };
 
       this.partesTrabajoService.createParteTrabajo(createData).subscribe({
         next: () => {
           this.router.navigate(['/partes-trabajo']);
         },
-        error: (error) => {
+        error: (error: any) => {
           this.error = 'Error al crear la orden de trabajo';
           console.error('Error:', error);
           this.loading = false;
@@ -184,20 +185,28 @@ export class ParteTrabajoFormComponent implements OnInit {
 
   getFieldLabel(fieldName: string): string {
     const labels: { [key: string]: string } = {
-      tecnico_id: 'Técnico',
-      cliente: 'Cliente',
-      fecha_inicio: 'Fecha de inicio',
-      descripcion: 'Descripción',
+      numero: 'Número',
+      ejercicio: 'Ejercicio',
+      fecha: 'Fecha',
+      hora_ini: 'Hora inicio',
+      hora_fin: 'Hora fin',
+      trabajo_solicitado: 'Trabajo solicitado',
       estado: 'Estado',
-      horas_normales: 'Horas normales',
-      horas_extras_normales: 'Horas extras normales',
-      horas_extras_especiales: 'Horas extras especiales'
+      cliente_empresa: 'Cliente/Empresa',
+      notas: 'Notas',
+      id_parte_api: 'ID API Externa'
     };
     return labels[fieldName] || fieldName;
   }
 
   formatearEstado(estado: EstadoParteTrabajo): string {
-    return this.partesTrabajoService.formatearEstado(estado);
+    const estadosMap: { [key: number]: string } = {
+      1: 'Pendiente',
+      2: 'En Proceso', 
+      3: 'Completado',
+      4: 'Cancelado'
+    };
+    return estadosMap[estado] || 'Desconocido';
   }
 
   private markFormGroupTouched(): void {
@@ -216,13 +225,5 @@ export class ParteTrabajoFormComponent implements OnInit {
 
   private formatDateForApi(dateString: string): string {
     return new Date(dateString).toISOString();
-  }
-
-  // Calcular total de horas
-  get totalHoras(): number {
-    const normales = this.form.get('horas_normales')?.value || 0;
-    const extrasNormales = this.form.get('horas_extras_normales')?.value || 0;
-    const extrasEspeciales = this.form.get('horas_extras_especiales')?.value || 0;
-    return normales + extrasNormales + extrasEspeciales;
   }
 }

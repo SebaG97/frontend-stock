@@ -1,109 +1,39 @@
-export interface Tecnico {
+export interface TecnicoSimple {
   id: number;
+  user: string;                        // Email técnico
   nombre: string;
-  apellido?: string;
-  codigo?: string;
-  legajo?: string;
-  nombre_completo?: string;
+  tipocuenta: number;
 }
 
 export interface ParteTrabajo {
-  id: number;
-  numero: number;                    // Nuevo campo del backend
-  ejercicio: string;                 // Nuevo campo del backend
-  id_parte_api?: string;
-  tecnico_id: number;
-  cliente_id?: string;
-  cliente_empresa: string;
-  cliente_codigoInterno?: string;    // Para mostrar código del cliente
-  fecha_inicio: string;
-  fecha_fin?: string;
-  descripcion: string;
-  estado: string;
-  firmado?: boolean;                 // Nuevo campo del backend
-  archivado?: boolean;              // Nuevo campo del backend
-  horas_normales?: number;
-  horas_extras_normales?: number;
-  horas_extras_especiales?: number;
-  observaciones?: string;
-  tecnico?: Tecnico;
-  tecnicos_participantes?: Tecnico[];  // Nuevo campo del backend
-  created_at?: string;
-  updated_at?: string;
+  id: number;                           // ID local BD (usar para navegación)
+  id_parte_api: string;                 // ID API externa (ej: "CC395D5D5F2")
+  numero: number;                       // Número parte (ej: 113)
+  ejercicio: string;                    // Año (ej: "2025")
+  fecha: string;                        // ISO format
+  hora_ini?: string;
+  hora_fin?: string;
+  trabajo_solicitado: string;
+  notas?: string;
+  estado: number;
+  cliente_empresa?: string;
+  archivado: boolean;
+  firmado: boolean;
+  tecnicos: TecnicoSimple[];           // ARRAY DE TÉCNICOS (NUEVO)
 }
 
-export enum EstadoParteTrabajo {
-  PENDIENTE = 'pendiente',
-  EN_PROCESO = 'en_proceso',    // Cambio de EN_PROGRESO a EN_PROCESO
-  FINALIZADO = 'finalizado',    // Cambio de COMPLETADO a FINALIZADO
-  CANCELADO = 'cancelado'
-}
-
-export interface ParteTrabajoCreate {
-  id_parte_api?: string;     // Cambio de id_api_externa
-  tecnico_id: number;
-  cliente_empresa: string;   // Cambio de cliente
-  fecha_inicio: string;
-  fecha_fin?: string;
-  descripcion: string;
-  estado?: string;           // Cambio a string
-  horas_normales?: number;
-  horas_extras_normales?: number;
-  horas_extras_especiales?: number;
-  observaciones?: string;
-}
-
-export interface ParteTrabajoUpdate {
-  id_parte_api?: string;     // Cambio de id_api_externa
-  tecnico_id?: number;
-  cliente_empresa?: string;  // Cambio de cliente
-  fecha_inicio?: string;
-  fecha_fin?: string;
-  descripcion?: string;
-  estado?: string;           // Cambio a string
-  horas_normales?: number;
-  horas_extras_normales?: number;
-  horas_extras_especiales?: number;
-  observaciones?: string;
-}
-
-// Estructura real del backend para estadísticas
-export interface BackendResumenStats {
-  totales: {
-    total: number;
-    pendientes: number;
-    en_proceso: number;
-    finalizados: number;
-  };
-  por_tecnico: Array<{
-    tecnico: string;
-    total_partes: number;
-  }>;
-}
-
-export interface ResumenPartesTrabajo {
-  total_partes: number;
-  partes_pendientes: number;
-  partes_en_proceso: number;    // Cambio de en_progreso a en_proceso
-  partes_finalizados: number;   // Cambio de completados a finalizados
-  partes_cancelados: number;
-  total_horas_trabajadas: number;
-  promedio_horas_por_parte: number;
-}
-
+// PARÁMETROS DE FILTRADO:
 export interface FiltrosPartesTrabajo {
-  numero?: number;              // Nuevo filtro del backend
-  tecnico_id?: number;
-  cliente?: string;
-  cliente_empresa?: string;     // Nuevo filtro del backend
-  estado?: EstadoParteTrabajo;
-  ejercicio?: string;           // Nuevo filtro del backend
-  firmado?: boolean;            // Nuevo filtro del backend
-  archivado?: boolean;          // Nuevo filtro del backend
-  fecha_inicio?: string;
-  fecha_fin?: string;
-  page?: number;
-  limit?: number;
+  skip?: number;                       // Paginación offset
+  limit?: number;                      // Cantidad registros
+  numero?: number;                     // Filtrar por número
+  estado?: number;                     // Filtrar por estado
+  tecnico_id?: number;                 // Filtrar por técnico
+  cliente_empresa?: string;            // Filtrar por cliente
+  fecha_desde?: string;                // YYYY-MM-DD
+  fecha_hasta?: string;                // YYYY-MM-DD
+  archivado?: boolean;
+  firmado?: boolean;
 }
 
 export interface ResponsePartesTrabajo {
@@ -112,4 +42,47 @@ export interface ResponsePartesTrabajo {
   page: number;
   limit: number;
   pages: number;
+}
+
+export interface ResumenPartesTrabajo {
+  total_partes: number;
+  partes_pendientes: number;
+  partes_en_proceso: number;
+  partes_finalizados: number;
+  partes_cancelados: number;
+  total_horas_trabajadas: number;
+  promedio_horas_por_parte: number;
+}
+
+// Para compatibilidad con componentes existentes
+export type EstadoParteTrabajo = number;
+
+export interface ParteTrabajoCreate {
+  id_parte_api?: string;
+  numero: number;
+  ejercicio: string;
+  fecha: string;
+  hora_ini?: string;
+  hora_fin?: string;
+  trabajo_solicitado: string;
+  notas?: string;
+  estado: number;
+  cliente_empresa?: string;
+  archivado?: boolean;
+  firmado?: boolean;
+}
+
+export interface ParteTrabajoUpdate {
+  id_parte_api?: string;
+  numero?: number;
+  ejercicio?: string;
+  fecha?: string;
+  hora_ini?: string;
+  hora_fin?: string;
+  trabajo_solicitado?: string;
+  notas?: string;
+  estado?: number;
+  cliente_empresa?: string;
+  archivado?: boolean;
+  firmado?: boolean;
 }

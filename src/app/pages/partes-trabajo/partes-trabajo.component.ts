@@ -46,7 +46,7 @@ export class PartesTrabajoComponent implements OnInit {
 
   // Filtros
   filtros: FiltrosPartesTrabajo = {
-    page: 1,
+    skip: 0,
     limit: 10
   };
 
@@ -59,13 +59,16 @@ export class PartesTrabajoComponent implements OnInit {
   searchQuery = '';
 
   // Estados disponibles
-  estadosDisponibles: string[] = [];
+  estadosDisponibles: Array<{label: string, value: number}> = [];
 
   constructor(
     private partesTrabajoService: PartesTrabajoService,
     private router: Router
   ) {
-    this.estadosDisponibles = this.partesTrabajoService.getEstadosDisponibles();
+    this.estadosDisponibles = this.partesTrabajoService.getEstadosDisponibles().map(estado => ({
+      label: this.partesTrabajoService.formatearEstado(estado),
+      value: estado
+    }));
   }
 
   ngOnInit(): void {
@@ -78,11 +81,9 @@ export class PartesTrabajoComponent implements OnInit {
     this.error = null;
 
     this.partesTrabajoService.getPartesTrabajo(this.filtros).subscribe({
-      next: (response) => {
-        this.partesTrabajo = response.items;
-        this.totalItems = response.total;
-        this.totalPages = response.pages;
-        this.currentPage = response.page;
+      next: (partes) => {
+        this.partesTrabajo = partes;
+        this.totalItems = partes.length;
         this.loading = false;
       },
       error: (error) => {
@@ -105,13 +106,13 @@ export class PartesTrabajoComponent implements OnInit {
   }
 
   aplicarFiltros(): void {
-    this.filtros.page = 1;
+    this.filtros.skip = 0;
     this.cargarPartesTrabajo();
   }
 
   limpiarFiltros(): void {
     this.filtros = {
-      page: 1,
+      skip: 0,
       limit: 10
     };
     this.cargarPartesTrabajo();
@@ -123,8 +124,6 @@ export class PartesTrabajoComponent implements OnInit {
         next: (resultados) => {
           this.partesTrabajo = resultados;
           this.totalItems = resultados.length;
-          this.totalPages = 1;
-          this.currentPage = 1;
         },
         error: (error) => {
           this.error = 'Error en la búsqueda';
@@ -137,30 +136,33 @@ export class PartesTrabajoComponent implements OnInit {
   }
 
   cambiarPagina(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.filtros.page = page;
+    if (page >= 1) {
+      this.filtros.skip = (page - 1) * (this.filtros.limit || 10);
       this.cargarPartesTrabajo();
     }
   }
 
-  verDetalle(id: number): void {
-    this.router.navigate(['/partes-trabajo', id]);
+  verDetalle(parte: ParteTrabajo): void {
+    if (!parte?.id) return;
+    this.router.navigate(['/partes-trabajo', parte.id]);
   }
 
-  editarParte(id: number): void {
-    this.router.navigate(['/partes-trabajo', id, 'editar']);
+  editarParte(parte: ParteTrabajo): void {
+    if (!parte?.id) return;
+    this.router.navigate(['/partes-trabajo', parte.id, 'editar']);
   }
 
-  cambiarEstado(parte: ParteTrabajo, nuevoEstado: EstadoParteTrabajo): void {
-    this.partesTrabajoService.updateEstadoParteTrabajo(parte.id, nuevoEstado).subscribe({
-      next: (parteActualizada) => {
+  cambiarEstado(parte: ParteTrabajo, nuevoEstado: number): void {
+    const updateData: any = { estado: nuevoEstado };
+    this.partesTrabajoService.updateParteTrabajo(parte.id, updateData).subscribe({
+      next: (parteActualizada: ParteTrabajo) => {
         const index = this.partesTrabajo.findIndex(p => p.id === parte.id);
         if (index !== -1) {
           this.partesTrabajo[index] = parteActualizada;
         }
         this.cargarResumen(); // Actualizar resumen
       },
-      error: (error) => {
+      error: (error: any) => {
         this.error = 'Error al cambiar el estado';
         console.error('Error:', error);
       }
@@ -168,13 +170,13 @@ export class PartesTrabajoComponent implements OnInit {
   }
 
   eliminarParte(parte: ParteTrabajo): void {
-    if (confirm(`¿Está seguro de eliminar la orden de trabajo "${parte.descripcion}"?`)) {
+    if (confirm(`¿Está seguro de eliminar la orden de trabajo "${parte.trabajo_solicitado}"?`)) {
       this.partesTrabajoService.deleteParteTrabajo(parte.id).subscribe({
         next: () => {
           this.cargarPartesTrabajo();
           this.cargarResumen();
         },
-        error: (error) => {
+        error: (error: any) => {
           this.error = 'Error al eliminar la orden de trabajo';
           console.error('Error:', error);
         }
@@ -186,16 +188,26 @@ export class PartesTrabajoComponent implements OnInit {
     this.router.navigate(['/partes-trabajo/nuevo']);
   }
 
-  formatearEstado(estado: EstadoParteTrabajo): string {
+  formatearEstado(estado: number): string {
     return this.partesTrabajoService.formatearEstado(estado);
   }
 
-  getClaseEstado(estado: EstadoParteTrabajo): string {
+  getClaseEstado(estado: number): string {
     return this.partesTrabajoService.getClaseEstado(estado);
   }
 
+  getSeverityFromEstado(estado: number): string {
+    switch (estado) {
+      case 1: return 'warning';
+      case 2: return 'info';
+      case 3: return 'success';
+      case 4: return 'danger';
+      default: return 'secondary';
+    }
+  }
+
   formatearFecha(fecha: string): string {
-    return new Date(fecha).toLocaleDateString('es-ES');
+    return this.partesTrabajoService.formatearFecha(fecha);
   }
 
   formatearHoras(horas?: number): string {
