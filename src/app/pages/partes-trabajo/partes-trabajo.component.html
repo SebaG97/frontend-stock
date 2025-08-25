@@ -1,0 +1,261 @@
+<div class="container-fluid py-4">
+  <!-- Header con resumen estadístico -->
+  <div class="row mb-4" *ngIf="resumen">
+    <div class="col-12">
+      <h2 class="mb-3">Órdenes de Trabajo</h2>
+      <div class="row">
+        <div class="col-md-2 col-sm-6 mb-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-primary">{{ resumen.total_partes }}</h5>
+              <p class="card-text small">Total</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-warning">{{ resumen.partes_pendientes }}</h5>
+              <p class="card-text small">Pendientes</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-info">{{ resumen.partes_en_progreso }}</h5>
+              <p class="card-text small">En Progreso</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-success">{{ resumen.partes_completados }}</h5>
+              <p class="card-text small">Completados</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-secondary">{{ formatearHoras(resumen.total_horas_trabajadas) }}</h5>
+              <p class="card-text small">Horas Totales</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-6 mb-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-dark">{{ formatearHoras(resumen.promedio_horas_por_parte) }}</h5>
+              <p class="card-text small">Promedio/Orden</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros y búsqueda -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">Filtros y Búsqueda</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <!-- Búsqueda rápida -->
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Búsqueda rápida</label>
+          <div class="input-group">
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Buscar por descripción, cliente..." 
+              [(ngModel)]="searchQuery"
+              (keyup.enter)="buscar()">
+            <button class="btn btn-outline-secondary" type="button" (click)="buscar()">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filtro por estado -->
+        <div class="col-md-2 mb-3">
+          <label class="form-label">Estado</label>
+          <select class="form-select" [(ngModel)]="filtros.estado" (change)="aplicarFiltros()">
+            <option value="">Todos</option>
+            <option *ngFor="let estado of estadosDisponibles" [value]="estado">
+              {{ formatearEstado(estado) }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Filtro por cliente -->
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Cliente</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="Filtrar por cliente"
+            [(ngModel)]="filtros.cliente"
+            (keyup.enter)="aplicarFiltros()">
+        </div>
+
+        <!-- Filtro por fechas -->
+        <div class="col-md-2 mb-3">
+          <label class="form-label">Fecha desde</label>
+          <input 
+            type="date" 
+            class="form-control"
+            [(ngModel)]="filtros.fecha_inicio"
+            (change)="aplicarFiltros()">
+        </div>
+
+        <div class="col-md-1 mb-3">
+          <label class="form-label">&nbsp;</label>
+          <div class="d-grid">
+            <button class="btn btn-secondary btn-sm" (click)="limpiarFiltros()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acciones principales -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4>Lista de Órdenes de Trabajo</h4>
+      <small class="text-muted">{{ totalItems }} órdenes encontradas</small>
+    </div>
+    <button class="btn btn-primary" (click)="nuevaOrden()">
+      <i class="fas fa-plus"></i> Nueva Orden
+    </button>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div class="alert alert-danger" *ngIf="error">
+    {{ error }}
+  </div>
+
+  <!-- Loading spinner -->
+  <div class="text-center py-4" *ngIf="loading">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Tabla de órdenes de trabajo -->
+  <div class="card" *ngIf="!loading">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Técnico</th>
+              <th>Descripción</th>
+              <th>Fecha Inicio</th>
+              <th>Estado</th>
+              <th>Horas</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let parte of partesTrabajo">
+              <td>
+                <span class="badge bg-secondary">#{{ parte.id }}</span>
+                <small class="text-muted d-block" *ngIf="parte.id_api_externa">
+                  API: {{ parte.id_api_externa }}
+                </small>
+              </td>
+              <td>
+                <strong>{{ parte.cliente }}</strong>
+              </td>
+              <td>
+                {{ parte.tecnico?.nombre_completo || (parte.tecnico?.nombre + ' ' + parte.tecnico?.apellido) }}
+              </td>
+              <td>
+                <div class="text-truncate" style="max-width: 200px;" [title]="parte.descripcion">
+                  {{ parte.descripcion }}
+                </div>
+              </td>
+              <td>
+                {{ formatearFecha(parte.fecha_inicio) }}
+                <small class="text-muted d-block" *ngIf="parte.fecha_fin">
+                  Fin: {{ formatearFecha(parte.fecha_fin) }}
+                </small>
+              </td>
+              <td>
+                <select 
+                  class="form-select form-select-sm"
+                  [value]="parte.estado"
+                  (change)="cambiarEstado(parte, $any($event.target).value)">
+                  <option *ngFor="let estado of estadosDisponibles" [value]="estado">
+                    {{ formatearEstado(estado) }}
+                  </option>
+                </select>
+              </td>
+              <td>
+                <small class="d-block">N: {{ formatearHoras(parte.horas_normales) }}</small>
+                <small class="d-block text-warning" *ngIf="parte.horas_extras_normales">
+                  EN: {{ formatearHoras(parte.horas_extras_normales) }}
+                </small>
+                <small class="d-block text-danger" *ngIf="parte.horas_extras_especiales">
+                  EE: {{ formatearHoras(parte.horas_extras_especiales) }}
+                </small>
+              </td>
+              <td>
+                <div class="btn-group btn-group-sm" role="group">
+                  <button 
+                    class="btn btn-outline-primary" 
+                    (click)="verDetalle(parte.id)"
+                    title="Ver detalle">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button 
+                    class="btn btn-outline-secondary" 
+                    (click)="editarParte(parte.id)"
+                    title="Editar">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button 
+                    class="btn btn-outline-danger" 
+                    (click)="eliminarParte(parte)"
+                    title="Eliminar">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Mensaje si no hay datos -->
+        <div class="text-center py-4" *ngIf="partesTrabajo.length === 0 && !loading">
+          <p class="text-muted">No se encontraron órdenes de trabajo</p>
+        </div>
+      </div>
+
+      <!-- Paginación -->
+      <nav aria-label="Paginación" *ngIf="totalPages > 1">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" (click)="cambiarPagina(currentPage - 1)">Anterior</button>
+          </li>
+          <li 
+            class="page-item" 
+            *ngFor="let page of [].constructor(totalPages); let i = index"
+            [class.active]="currentPage === i + 1">
+            <button class="page-link" (click)="cambiarPagina(i + 1)">{{ i + 1 }}</button>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button class="page-link" (click)="cambiarPagina(currentPage + 1)">Siguiente</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

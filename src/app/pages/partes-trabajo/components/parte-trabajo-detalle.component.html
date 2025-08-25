@@ -1,0 +1,211 @@
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Detalle de Orden de Trabajo</h2>
+        <button class="btn btn-outline-secondary" (click)="volver()">
+          <i class="fas fa-arrow-left"></i> Volver al Listado
+        </button>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div class="alert alert-danger" *ngIf="error">
+        {{ error }}
+      </div>
+
+      <!-- Loading spinner -->
+      <div class="text-center py-4" *ngIf="loading">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+
+      <!-- Contenido principal -->
+      <div *ngIf="parte && !loading">
+        <!-- Información básica -->
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="fas fa-clipboard-list"></i>
+              Orden #{{ parte.id }}
+              <span class="badge ms-2" [class]="getClaseEstado(parte.estado)">
+                {{ formatearEstado(parte.estado) }}
+              </span>
+            </h5>
+            <div class="btn-group" role="group">
+              <button class="btn btn-primary btn-sm" (click)="editarParte()">
+                <i class="fas fa-edit"></i> Editar
+              </button>
+              <button class="btn btn-danger btn-sm" (click)="eliminarParte()">
+                <i class="fas fa-trash"></i> Eliminar
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h6 class="text-muted">Información General</h6>
+                <table class="table table-borderless">
+                  <tr>
+                    <td class="fw-bold">Cliente:</td>
+                    <td>{{ parte.cliente }}</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-bold">Técnico:</td>
+                    <td>
+                      {{ parte.tecnico?.nombre_completo || (parte.tecnico?.nombre + ' ' + parte.tecnico?.apellido) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-bold">Estado:</td>
+                    <td>
+                      <select 
+                        class="form-select form-select-sm d-inline-block w-auto"
+                        [value]="parte.estado"
+                        (change)="cambiarEstado($any($event.target).value)">
+                        <option *ngFor="let estado of estadosDisponibles" [value]="estado">
+                          {{ formatearEstado(estado) }}
+                        </option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr *ngIf="parte.id_api_externa">
+                    <td class="fw-bold">ID API Externa:</td>
+                    <td><code>{{ parte.id_api_externa }}</code></td>
+                  </tr>
+                </table>
+              </div>
+              <div class="col-md-6">
+                <h6 class="text-muted">Fechas y Duración</h6>
+                <table class="table table-borderless">
+                  <tr>
+                    <td class="fw-bold">Fecha de Inicio:</td>
+                    <td>{{ formatearFecha(parte.fecha_inicio) }}</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-bold">Fecha de Fin:</td>
+                    <td>
+                      <span *ngIf="parte.fecha_fin; else sinFechaFin">
+                        {{ formatearFecha(parte.fecha_fin) }}
+                      </span>
+                      <ng-template #sinFechaFin>
+                        <span class="text-muted">En progreso</span>
+                      </ng-template>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-bold">Duración:</td>
+                    <td>{{ duracionTrabajo }}</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-bold">Creado:</td>
+                    <td>
+                      <small class="text-muted" *ngIf="parte.created_at">
+                        {{ formatearFechaHora(parte.created_at) }}
+                      </small>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descripción del trabajo -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fas fa-file-text"></i>
+              Descripción del Trabajo
+            </h5>
+          </div>
+          <div class="card-body">
+            <p class="mb-0">{{ parte.descripcion }}</p>
+          </div>
+        </div>
+
+        <!-- Registro de horas -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fas fa-clock"></i>
+              Registro de Horas
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3 mb-3">
+                <div class="text-center">
+                  <h4 class="text-primary mb-1">{{ formatearHoras(parte.horas_normales) }}</h4>
+                  <small class="text-muted">Horas Normales</small>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="text-center">
+                  <h4 class="text-warning mb-1">{{ formatearHoras(parte.horas_extras_normales) }}</h4>
+                  <small class="text-muted">Horas Extras Normales</small>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="text-center">
+                  <h4 class="text-danger mb-1">{{ formatearHoras(parte.horas_extras_especiales) }}</h4>
+                  <small class="text-muted">Horas Extras Especiales</small>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="text-center">
+                  <h4 class="text-success mb-1">{{ formatearHoras(totalHoras) }}</h4>
+                  <small class="text-muted">Total Horas</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Alerta si tiene horas extras -->
+            <div class="alert alert-warning" *ngIf="tieneHorasExtras">
+              <i class="fas fa-exclamation-triangle"></i>
+              <strong>Atención:</strong> Esta orden incluye horas extras.
+            </div>
+          </div>
+        </div>
+
+        <!-- Observaciones -->
+        <div class="card mb-4" *ngIf="parte.observaciones">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fas fa-comment"></i>
+              Observaciones
+            </h5>
+          </div>
+          <div class="card-body">
+            <p class="mb-0">{{ parte.observaciones }}</p>
+          </div>
+        </div>
+
+        <!-- Información de auditoría -->
+        <div class="card" *ngIf="parte.created_at || parte.updated_at">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <i class="fas fa-history"></i>
+              Información de Auditoría
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6" *ngIf="parte.created_at">
+                <small class="text-muted">
+                  <strong>Creado:</strong> {{ formatearFechaHora(parte.created_at) }}
+                </small>
+              </div>
+              <div class="col-md-6" *ngIf="parte.updated_at">
+                <small class="text-muted">
+                  <strong>Última modificación:</strong> {{ formatearFechaHora(parte.updated_at) }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

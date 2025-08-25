@@ -22,7 +22,24 @@ export const appRoutes: Routes = [
             { path: 'stock', loadComponent: () => import('./app/pages/stock/stock-list.component').then(m => m.StockListComponent) },
             { path: 'stock-movimientos', loadComponent: () => import('./app/pages/stock/stock-movimientos.component').then(m => m.StockMovimientosComponent) },
             { path: 'stock-sync', loadComponent: () => import('./app/pages/stock/stock-sync.component').then(m => m.StockSyncComponent) },
-            { path: 'horas-extras', loadComponent: () => import('./app/pages/horas-extras/horas-extras.component').then(m => m.HorasExtrasComponent) }
+            { path: 'horas-extras', loadComponent: () => import('./app/pages/horas-extras/horas-extras.component').then(m => m.HorasExtrasComponent) },
+            // Rutas para órdenes de trabajo
+            { 
+                path: 'partes-trabajo', 
+                loadComponent: () => import('./app/pages/partes-trabajo/partes-trabajo.component').then(m => m.PartesTrabajoComponent) 
+            },
+            { 
+                path: 'partes-trabajo/nuevo', 
+                loadComponent: () => import('./app/pages/partes-trabajo/components/parte-trabajo-form.component').then(m => m.ParteTrabajoFormComponent) 
+            },
+            { 
+                path: 'partes-trabajo/:id', 
+                loadComponent: () => import('./app/pages/partes-trabajo/components/parte-trabajo-detalle.component').then(m => m.ParteTrabajoDetalleComponent) 
+            },
+            { 
+                path: 'partes-trabajo/:id/editar', 
+                loadComponent: () => import('./app/pages/partes-trabajo/components/parte-trabajo-form.component').then(m => m.ParteTrabajoFormComponent) 
+            }
         ]
     },
 ];

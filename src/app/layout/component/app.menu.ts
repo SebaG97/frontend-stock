@@ -44,6 +44,12 @@ export class AppMenu {
                 label: 'Recursos Humanos',
                 items: [
                     { 
+                        label: 'Órdenes de Trabajo', 
+                        icon: 'pi pi-fw pi-clipboard', 
+                        routerLink: ['/partes-trabajo'],
+                        title: 'Gestión de órdenes y partes de trabajo'
+                    },
+                    { 
                         label: 'Horas Extras', 
                         icon: 'pi pi-fw pi-clock', 
                         routerLink: ['/horas-extras'],
