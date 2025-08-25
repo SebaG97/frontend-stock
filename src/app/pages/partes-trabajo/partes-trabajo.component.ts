@@ -2,6 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
+import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
+import { CalendarModule } from 'primeng/calendar';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { 
   ParteTrabajo, 
   FiltrosPartesTrabajo, 
@@ -13,7 +22,19 @@ import { PartesTrabajoService } from '../../services/partes-trabajo.service';
 @Component({
   selector: 'app-partes-trabajo',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    CardModule,
+    ButtonModule,
+    DropdownModule,
+    InputTextModule,
+    TableModule,
+    TooltipModule,
+    TagModule,
+    CalendarModule,
+    ProgressSpinnerModule
+  ],
   templateUrl: './partes-trabajo.component.html',
   styleUrls: ['./partes-trabajo.component.scss']
 })
@@ -38,7 +59,7 @@ export class PartesTrabajoComponent implements OnInit {
   searchQuery = '';
 
   // Estados disponibles
-  estadosDisponibles: EstadoParteTrabajo[] = [];
+  estadosDisponibles: string[] = [];
 
   constructor(
     private partesTrabajoService: PartesTrabajoService,
