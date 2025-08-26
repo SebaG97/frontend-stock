@@ -143,6 +143,7 @@ export class PartesTrabajoComponent implements OnInit {
       this.partesTrabajoFiltradas = this.partesTrabajo.filter(parte => 
         parte.trabajo_solicitado.toLowerCase().includes(query) ||
         (parte.cliente_empresa && parte.cliente_empresa.toLowerCase().includes(query)) ||
+        (parte.cliente_codigo_interno && parte.cliente_codigo_interno.toLowerCase().includes(query)) ||
         parte.numero.toString().includes(query) ||
         parte.tecnicos.some(t => t.nombre.toLowerCase().includes(query))
       );
@@ -169,11 +170,6 @@ export class PartesTrabajoComponent implements OnInit {
   verDetalle(parte: ParteTrabajo): void {
     if (!parte?.id) return;
     this.router.navigate(['/partes-trabajo', parte.id]);
-  }
-
-  editarParte(parte: ParteTrabajo): void {
-    if (!parte?.id) return;
-    this.router.navigate(['/partes-trabajo', parte.id, 'editar']);
   }
 
   cambiarEstado(parte: ParteTrabajo, nuevoEstado: number): void {
@@ -208,10 +204,6 @@ export class PartesTrabajoComponent implements OnInit {
     }
   }
 
-  nuevaOrden(): void {
-    this.router.navigate(['/partes-trabajo/nuevo']);
-  }
-
   formatearEstado(estado: number): string {
     return this.partesTrabajoService.formatearEstado(estado);
   }
@@ -233,6 +225,28 @@ export class PartesTrabajoComponent implements OnInit {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
+    });
+  }
+
+  formatearHora(fechaHora: string): string {
+    if (!fechaHora) return '';
+    const date = new Date(fechaHora);
+    return date.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  }
+
+  formatearFechaCompleta(fecha: string): string {
+    if (!fecha) return '';
+    const date = new Date(fecha);
+    return date.toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 }

@@ -72,13 +72,13 @@
                   <td class="fw-bold">Fecha:</td>
                   <td>{{ formatearFecha(parte.fecha) }}</td>
                 </tr>
-                <tr *ngIf="parte.hora_ini">
+                <tr *ngIf="parte.hora_inicio">
                   <td class="fw-bold">Hora Inicio:</td>
-                  <td>{{ parte.hora_ini }}</td>
+                  <td>{{ formatearHora(parte.hora_inicio) }}</td>
                 </tr>
                 <tr *ngIf="parte.hora_fin">
                   <td class="fw-bold">Hora Fin:</td>
-                  <td>{{ parte.hora_fin }}</td>
+                  <td>{{ formatearHora(parte.hora_fin) }}</td>
                 </tr>
               </table>
             </div>

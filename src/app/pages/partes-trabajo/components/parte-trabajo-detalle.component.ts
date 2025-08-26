@@ -129,12 +129,22 @@ export class ParteTrabajoDetalleComponent implements OnInit {
   get duracionTrabajo(): string {
     if (!this.parte) return 'Sin datos';
     
-    if (this.parte.hora_ini && this.parte.hora_fin) {
-      return `${this.parte.hora_ini} - ${this.parte.hora_fin}`;
-    } else if (this.parte.hora_ini) {
-      return `Iniciado: ${this.parte.hora_ini}`;
+    if (this.parte.hora_inicio && this.parte.hora_fin) {
+      return `${this.formatearHora(this.parte.hora_inicio)} - ${this.formatearHora(this.parte.hora_fin)}`;
+    } else if (this.parte.hora_inicio) {
+      return `Iniciado: ${this.formatearHora(this.parte.hora_inicio)}`;
     }
     
     return 'Sin horario definido';
+  }
+
+  formatearHora(fechaHora: string): string {
+    if (!fechaHora) return '';
+    const date = new Date(fechaHora);
+    return date.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
   }
 }

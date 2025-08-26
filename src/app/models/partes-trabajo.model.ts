@@ -10,13 +10,17 @@ export interface ParteTrabajo {
   id_parte_api: string;                 // ID API externa (ej: "CC395D5D5F2")
   numero: number;                       // Número parte (ej: 113)
   ejercicio: string;                    // Año (ej: "2025")
-  fecha: string;                        // ISO format
-  hora_ini?: string;
-  hora_fin?: string;
+  fecha: string;                        // ISO format timestamp completo
+  hora_inicio?: string;                 // Campo real del backend
+  hora_fin?: string;                    // Campo real del backend
   trabajo_solicitado: string;
   notas?: string;
   estado: number;
   cliente_empresa?: string;
+  cliente_codigo_interno?: string;
+  cliente_direccion?: string;
+  cliente_telefono?: string;
+  cliente_email?: string;
   archivado: boolean;
   firmado: boolean;
   tecnicos: TecnicoSimple[];           // ARRAY DE TÉCNICOS (NUEVO)

@@ -111,8 +111,8 @@
             Estado 
             <p-sortIcon field="estado"></p-sortIcon>
           </th>
-          <th>Fecha Inicio</th>
-          <th>Horario</th>
+          <th>Hora Inicio</th>
+          <th>Hora Fin</th>
           <th>Acciones</th>
         </tr>
       </ng-template>
@@ -130,6 +130,9 @@
           </td>
           <td>
             <div class="font-medium">{{ parte.cliente_empresa || 'Sin empresa' }}</div>
+            <div class="text-xs text-gray-500" *ngIf="parte.cliente_codigo_interno">
+              {{ parte.cliente_codigo_interno }}
+            </div>
           </td>
           <td>
             <div class="flex flex-col gap-1">
@@ -157,19 +160,19 @@
           </td>
           <td>
             <div class="text-sm">
-              <div class="font-medium">{{ formatearFecha(parte.fecha) }}</div>
+              <div class="flex items-center gap-2">
+                <i class="pi pi-clock text-blue-500"></i>
+                <span *ngIf="parte.hora_inicio">{{ formatearHora(parte.hora_inicio) }}</span>
+                <span *ngIf="!parte.hora_inicio" class="text-gray-400">--:--</span>
+              </div>
             </div>
           </td>
           <td>
-            <div class="text-sm space-y-1">
+            <div class="text-sm">
               <div class="flex items-center gap-2">
-                <i class="pi pi-clock text-blue-500"></i>
-                <span *ngIf="parte.hora_ini">{{ parte.hora_ini }}</span>
-                <span *ngIf="!parte.hora_ini">--:--</span>
-              </div>
-              <div class="flex items-center gap-2" *ngIf="parte.hora_fin">
                 <i class="pi pi-stop-circle text-red-500"></i>
-                <span>{{ parte.hora_fin }}</span>
+                <span *ngIf="parte.hora_fin">{{ formatearHora(parte.hora_fin) }}</span>
+                <span *ngIf="!parte.hora_fin" class="text-gray-400">--:--</span>
               </div>
             </div>
           </td>

@@ -29,16 +29,8 @@ export const appRoutes: Routes = [
                 loadComponent: () => import('./app/pages/partes-trabajo/partes-trabajo.component').then(m => m.PartesTrabajoComponent) 
             },
             { 
-                path: 'partes-trabajo/nuevo', 
-                loadComponent: () => import('./app/pages/partes-trabajo/components/parte-trabajo-form.component').then(m => m.ParteTrabajoFormComponent) 
-            },
-            { 
                 path: 'partes-trabajo/:id', 
                 loadComponent: () => import('./app/pages/partes-trabajo/components/parte-trabajo-detalle.component').then(m => m.ParteTrabajoDetalleComponent) 
-            },
-            { 
-                path: 'partes-trabajo/:id/editar', 
-                loadComponent: () => import('./app/pages/partes-trabajo/components/parte-trabajo-form.component').then(m => m.ParteTrabajoFormComponent) 
             }
         ]
     },
