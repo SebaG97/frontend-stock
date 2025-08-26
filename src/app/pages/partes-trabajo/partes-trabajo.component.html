@@ -5,7 +5,7 @@
   </div>
 
   <!-- Cards de resumen -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6" *ngIf="resumen">
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6" *ngIf="resumen">
     <p-card>
       <ng-template pTemplate="header">
         <div class="text-center p-3 bg-blue-50">
@@ -34,11 +34,11 @@
   <p-card class="mb-4">
     <ng-template pTemplate="header">
       <div class="p-4 border-b">
-        <h3 class="text-lg font-semibold text-gray-900">Filtros y Búsqueda</h3>
+        <h3 class="text-lg font-semibold text-gray-900">Búsqueda</h3>
       </div>
     </ng-template>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <!-- Búsqueda rápida -->
       <div class="flex flex-col">
         <label class="text-sm font-medium text-gray-700 mb-2">Búsqueda rápida</label>
@@ -46,65 +46,18 @@
           <input 
             type="text" 
             pInputText 
-            placeholder="Buscar por descripción, cliente..." 
+            placeholder="Buscar en la tabla..." 
             [(ngModel)]="searchQuery"
-            (keyup.enter)="buscar()"
+            (input)="filtrarTabla()"
             class="w-full">
           <p-button 
-            icon="pi pi-search" 
-            (onClick)="buscar()"
-            severity="secondary">
+            icon="pi pi-times" 
+            (onClick)="limpiarBusqueda()"
+            severity="secondary"
+            [disabled]="!searchQuery">
           </p-button>
         </div>
       </div>
-
-      <!-- Filtro por estado -->
-      <div class="flex flex-col">
-        <label class="text-sm font-medium text-gray-700 mb-2">Estado</label>
-        <p-dropdown 
-          [options]="estadosDisponibles" 
-          [(ngModel)]="filtros.estado"
-          (onChange)="aplicarFiltros()"
-          placeholder="Todos los estados"
-          [showClear]="true"
-          class="w-full">
-        </p-dropdown>
-      </div>
-
-      <!-- Filtro por cliente -->
-      <div class="flex flex-col">
-        <label class="text-sm font-medium text-gray-700 mb-2">Cliente</label>
-        <input 
-          type="text" 
-          pInputText
-          placeholder="Filtrar por cliente"
-          [(ngModel)]="filtros.cliente_empresa"
-          (keyup.enter)="aplicarFiltros()"
-          class="w-full">
-      </div>
-
-      <!-- Filtro por fechas -->
-      <div class="flex flex-col">
-        <label class="text-sm font-medium text-gray-700 mb-2">Fecha desde</label>
-        <p-calendar 
-          [(ngModel)]="filtros.fecha_desde"
-          (onSelect)="aplicarFiltros()"
-          dateFormat="yy-mm-dd"
-          placeholder="Seleccionar fecha"
-          iconDisplay="input"
-          class="w-full">
-        </p-calendar>
-      </div>
-    </div>
-
-    <div class="flex justify-end mt-4">
-      <p-button 
-        label="Limpiar Filtros" 
-        icon="pi pi-times" 
-        severity="secondary"
-        (onClick)="limpiarFiltros()"
-        class="mr-2">
-      </p-button>
     </div>
   </p-card>
 
@@ -130,15 +83,17 @@
     </ng-template>
 
     <p-table 
-      [value]="partesTrabajo" 
+      [value]="partesTrabajoFiltradas" 
       [paginator]="true" 
       [rows]="10"
-      [totalRecords]="totalItems"
+      [totalRecords]="partesTrabajoFiltradas.length"
       [loading]="loading"
       [rowsPerPageOptions]="[10, 25, 50]"
       styleClass="p-datatable-gridlines"
       [scrollable]="true"
-      [responsive]="true">
+      [responsive]="true"
+      sortField="numero"
+      [sortOrder]="-1">
       
       <ng-template pTemplate="header">
         <tr>
@@ -156,6 +111,7 @@
             Estado 
             <p-sortIcon field="estado"></p-sortIcon>
           </th>
+          <th>Fecha Inicio</th>
           <th>Horario</th>
           <th>Acciones</th>
         </tr>
@@ -198,6 +154,11 @@
               [value]="formatearEstado(parte.estado)"
               [severity]="getSeverityFromEstado(parte.estado)">
             </p-tag>
+          </td>
+          <td>
+            <div class="text-sm">
+              <div class="font-medium">{{ formatearFecha(parte.fecha) }}</div>
+            </div>
           </td>
           <td>
             <div class="text-sm space-y-1">

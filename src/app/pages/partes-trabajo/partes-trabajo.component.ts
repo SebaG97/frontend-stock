@@ -40,6 +40,7 @@ import { PartesTrabajoService } from '../../services/partes-trabajo.service';
 })
 export class PartesTrabajoComponent implements OnInit {
   partesTrabajo: ParteTrabajo[] = [];
+  partesTrabajoFiltradas: ParteTrabajo[] = [];
   resumen: ResumenPartesTrabajo | null = null;
   loading = false;
   error: string | null = null;
@@ -73,7 +74,6 @@ export class PartesTrabajoComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarPartesTrabajo();
-    this.cargarResumen();
   }
 
   cargarPartesTrabajo(): void {
@@ -94,6 +94,15 @@ export class PartesTrabajoComponent implements OnInit {
           this.totalPages = response.pages || 0;
           this.currentPage = response.page || 1;
         }
+        
+        // Ordenar por número descendente (últimos primero)
+        this.partesTrabajo.sort((a, b) => b.numero - a.numero);
+        
+        // Actualizar resumen con datos reales
+        this.calcularResumen();
+        
+        // Aplicar filtros locales
+        this.filtrarTabla();
         this.loading = false;
       },
       error: (error) => {
@@ -105,54 +114,49 @@ export class PartesTrabajoComponent implements OnInit {
   }
 
   cargarResumen(): void {
-    this.partesTrabajoService.getResumenStats().subscribe({
-      next: (resumen) => {
-        this.resumen = resumen;
-      },
-      error: (error) => {
-        console.error('Error al cargar resumen:', error);
-      }
-    });
+    // Calcular resumen con datos locales
+    this.calcularResumen();
   }
 
-  aplicarFiltros(): void {
-    this.filtros.skip = 0;
-    this.cargarPartesTrabajo();
+  calcularResumen(): void {
+    if (this.partesTrabajo.length > 0) {
+      const total = this.partesTrabajo.length;
+      const finalizados = this.partesTrabajo.filter(p => p.estado === 3).length;
+      
+      this.resumen = {
+        total_partes: total,
+        partes_pendientes: this.partesTrabajo.filter(p => p.estado === 1).length,
+        partes_en_proceso: this.partesTrabajo.filter(p => p.estado === 2).length,
+        partes_finalizados: finalizados,
+        partes_cancelados: this.partesTrabajo.filter(p => p.estado === 4).length,
+        total_horas_trabajadas: 0,
+        promedio_horas_por_parte: 0
+      };
+    }
+  }
+
+  filtrarTabla(): void {
+    if (!this.searchQuery || this.searchQuery.trim() === '') {
+      this.partesTrabajoFiltradas = [...this.partesTrabajo];
+    } else {
+      const query = this.searchQuery.toLowerCase().trim();
+      this.partesTrabajoFiltradas = this.partesTrabajo.filter(parte => 
+        parte.trabajo_solicitado.toLowerCase().includes(query) ||
+        (parte.cliente_empresa && parte.cliente_empresa.toLowerCase().includes(query)) ||
+        parte.numero.toString().includes(query) ||
+        parte.tecnicos.some(t => t.nombre.toLowerCase().includes(query))
+      );
+    }
+  }
+
+  limpiarBusqueda(): void {
+    this.searchQuery = '';
+    this.filtrarTabla();
   }
 
   limpiarFiltros(): void {
-    this.filtros = {
-      skip: 0,
-      limit: 100
-    };
+    this.searchQuery = '';
     this.cargarPartesTrabajo();
-  }
-
-  buscar(): void {
-    if (this.searchQuery.trim()) {
-      this.partesTrabajoService.buscarPartesTrabajo(this.searchQuery).subscribe({
-        next: (response) => {
-          // Manejar tanto array directo como respuesta paginada
-          if (Array.isArray(response)) {
-            this.partesTrabajo = response;
-            this.totalItems = response.length;
-            this.totalPages = 1;
-            this.currentPage = 1;
-          } else {
-            this.partesTrabajo = response.items || [];
-            this.totalItems = response.total || 0;
-            this.totalPages = response.pages || 0;
-            this.currentPage = response.page || 1;
-          }
-        },
-        error: (error) => {
-          this.error = 'Error en la búsqueda';
-          console.error('Error:', error);
-        }
-      });
-    } else {
-      this.cargarPartesTrabajo();
-    }
   }
 
   cambiarPagina(page: number): void {
@@ -180,7 +184,8 @@ export class PartesTrabajoComponent implements OnInit {
         if (index !== -1) {
           this.partesTrabajo[index] = parteActualizada;
         }
-        this.cargarResumen(); // Actualizar resumen
+        this.calcularResumen(); // Actualizar resumen
+        this.filtrarTabla(); // Actualizar tabla filtrada
       },
       error: (error: any) => {
         this.error = 'Error al cambiar el estado';
@@ -194,7 +199,6 @@ export class PartesTrabajoComponent implements OnInit {
       this.partesTrabajoService.deleteParteTrabajo(parte.id).subscribe({
         next: () => {
           this.cargarPartesTrabajo();
-          this.cargarResumen();
         },
         error: (error: any) => {
           this.error = 'Error al eliminar la orden de trabajo';
@@ -212,10 +216,6 @@ export class PartesTrabajoComponent implements OnInit {
     return this.partesTrabajoService.formatearEstado(estado);
   }
 
-  getClaseEstado(estado: number): string {
-    return this.partesTrabajoService.getClaseEstado(estado);
-  }
-
   getSeverityFromEstado(estado: number): string {
     switch (estado) {
       case 1: return 'warning';
@@ -227,10 +227,12 @@ export class PartesTrabajoComponent implements OnInit {
   }
 
   formatearFecha(fecha: string): string {
-    return this.partesTrabajoService.formatearFecha(fecha);
-  }
-
-  formatearHoras(horas?: number): string {
-    return horas ? `${horas}h` : '0h';
+    if (!fecha) return '';
+    const date = new Date(fecha);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
   }
 }
