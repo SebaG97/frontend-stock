@@ -23,7 +23,7 @@ export class PartesTrabajoService {
   /**
    * Obtener todas las órdenes de trabajo con filtros y paginación
    */
-  getPartesTrabajo(filtros?: FiltrosPartesTrabajo): Observable<ParteTrabajo[]> {
+  getPartesTrabajo(filtros?: FiltrosPartesTrabajo): Observable<any> {
     let params = new HttpParams();
     
     if (filtros) {
@@ -39,7 +39,7 @@ export class PartesTrabajoService {
       if (filtros.firmado !== undefined) params = params.set('firmado', filtros.firmado.toString());
     }
 
-    return this.http.get<ParteTrabajo[]>(this.apiUrl, { params });
+    return this.http.get<any>(this.apiUrl, { params });
   }
 
   /**
@@ -133,11 +133,18 @@ export class PartesTrabajoService {
   }
 
   /**
-   * Buscar partes de trabajo
+   * Buscar partes de trabajo (usa el mismo endpoint con filtros)
    */
-  buscarPartesTrabajo(query: string): Observable<ParteTrabajo[]> {
-    const params = new HttpParams().set('q', query);
-    return this.http.get<ParteTrabajo[]>(`${this.apiUrl}/search`, { params });
+  buscarPartesTrabajo(query: string): Observable<any> {
+    let params = new HttpParams()
+      .set('limit', '100'); // Aumentar límite para búsqueda
+    
+    // Intentar buscar por múltiples campos
+    if (query.trim()) {
+      params = params.set('cliente_empresa', query.trim());
+    }
+    
+    return this.http.get<any>(this.apiUrl, { params });
   }
 
   /**

@@ -2,15 +2,6 @@
   <!-- Header con título y acciones principales -->
   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
     <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Órdenes de Trabajo</h1>
-    <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
-      <p-button 
-        label="Nueva Orden" 
-        icon="pi pi-plus" 
-        severity="success"
-        routerLink="/partes-trabajo/nuevo"
-        class="w-full sm:w-auto">
-      </p-button>
-    </div>
   </div>
 
   <!-- Cards de resumen -->
@@ -26,31 +17,6 @@
         <div class="text-sm text-gray-600">Total</div>
       </div>
     </p-card>
-
-    <p-card>
-      <ng-template pTemplate="header">
-        <div class="text-center p-3 bg-yellow-50">
-          <i class="pi pi-clock text-4xl text-yellow-500"></i>
-        </div>
-      </ng-template>
-      <div class="text-center">
-        <div class="text-2xl font-bold text-yellow-600">{{ resumen.partes_pendientes }}</div>
-        <div class="text-sm text-gray-600">Pendientes</div>
-      </div>
-    </p-card>
-
-    <p-card>
-      <ng-template pTemplate="header">
-        <div class="text-center p-3 bg-orange-50">
-          <i class="pi pi-cog text-4xl text-orange-500"></i>
-        </div>
-      </ng-template>
-      <div class="text-center">
-        <div class="text-2xl font-bold text-orange-600">{{ resumen.partes_en_proceso }}</div>
-        <div class="text-sm text-gray-600">En Progreso</div>
-      </div>
-    </p-card>
-
     <p-card>
       <ng-template pTemplate="header">
         <div class="text-center p-3 bg-green-50">
@@ -59,31 +25,7 @@
       </ng-template>
       <div class="text-center">
         <div class="text-2xl font-bold text-green-600">{{ resumen.partes_finalizados }}</div>
-        <div class="text-sm text-gray-600">Completados</div>
-      </div>
-    </p-card>
-
-    <p-card>
-      <ng-template pTemplate="header">
-        <div class="text-center p-3 bg-purple-50">
-          <i class="pi pi-hourglass text-4xl text-purple-500"></i>
-        </div>
-      </ng-template>
-      <div class="text-center">
-        <div class="text-2xl font-bold text-purple-600">{{ formatearHoras(resumen.total_horas_trabajadas) }}</div>
-        <div class="text-sm text-gray-600">Horas Totales</div>
-      </div>
-    </p-card>
-
-    <p-card>
-      <ng-template pTemplate="header">
-        <div class="text-center p-3 bg-gray-50">
-          <i class="pi pi-chart-bar text-4xl text-gray-500"></i>
-        </div>
-      </ng-template>
-      <div class="text-center">
-        <div class="text-2xl font-bold text-gray-600">{{ formatearHoras(resumen.promedio_horas_por_parte) }}</div>
-        <div class="text-sm text-gray-600">Promedio/Orden</div>
+        <div class="text-sm text-gray-600">Finalizados</div>
       </div>
     </p-card>
   </div>
@@ -210,10 +152,6 @@
             Trabajo Solicitado 
             <p-sortIcon field="trabajo_solicitado"></p-sortIcon>
           </th>
-          <th pSortableColumn="fecha">
-            Fecha 
-            <p-sortIcon field="fecha"></p-sortIcon>
-          </th>
           <th pSortableColumn="estado">
             Estado 
             <p-sortIcon field="estado"></p-sortIcon>
@@ -256,11 +194,6 @@
             </div>
           </td>
           <td>
-            <div class="text-sm">
-              {{ formatearFecha(parte.fecha) }}
-            </div>
-          </td>
-          <td>
             <p-tag 
               [value]="formatearEstado(parte.estado)"
               [severity]="getSeverityFromEstado(parte.estado)">
@@ -288,22 +221,6 @@
                 [text]="true"
                 (onClick)="verDetalle(parte)"
                 pTooltip="Ver detalle">
-              </p-button>
-              <p-button 
-                icon="pi pi-pencil" 
-                size="small"
-                severity="secondary"
-                [text]="true"
-                (onClick)="editarParte(parte)"
-                pTooltip="Editar">
-              </p-button>
-              <p-button 
-                icon="pi pi-trash" 
-                size="small"
-                severity="danger"
-                [text]="true"
-                (onClick)="eliminarParte(parte)"
-                pTooltip="Eliminar">
               </p-button>
             </div>
           </td>

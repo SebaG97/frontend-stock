@@ -47,7 +47,7 @@ export class PartesTrabajoComponent implements OnInit {
   // Filtros
   filtros: FiltrosPartesTrabajo = {
     skip: 0,
-    limit: 10
+    limit: 100  // Aumentar para ver más registros
   };
 
   // Paginación
@@ -81,9 +81,19 @@ export class PartesTrabajoComponent implements OnInit {
     this.error = null;
 
     this.partesTrabajoService.getPartesTrabajo(this.filtros).subscribe({
-      next: (partes) => {
-        this.partesTrabajo = partes;
-        this.totalItems = partes.length;
+      next: (response) => {
+        // Manejar tanto array directo como respuesta paginada
+        if (Array.isArray(response)) {
+          this.partesTrabajo = response;
+          this.totalItems = response.length;
+          this.totalPages = 1;
+          this.currentPage = 1;
+        } else {
+          this.partesTrabajo = response.items || [];
+          this.totalItems = response.total || 0;
+          this.totalPages = response.pages || 0;
+          this.currentPage = response.page || 1;
+        }
         this.loading = false;
       },
       error: (error) => {
@@ -113,7 +123,7 @@ export class PartesTrabajoComponent implements OnInit {
   limpiarFiltros(): void {
     this.filtros = {
       skip: 0,
-      limit: 10
+      limit: 100
     };
     this.cargarPartesTrabajo();
   }
@@ -121,9 +131,19 @@ export class PartesTrabajoComponent implements OnInit {
   buscar(): void {
     if (this.searchQuery.trim()) {
       this.partesTrabajoService.buscarPartesTrabajo(this.searchQuery).subscribe({
-        next: (resultados) => {
-          this.partesTrabajo = resultados;
-          this.totalItems = resultados.length;
+        next: (response) => {
+          // Manejar tanto array directo como respuesta paginada
+          if (Array.isArray(response)) {
+            this.partesTrabajo = response;
+            this.totalItems = response.length;
+            this.totalPages = 1;
+            this.currentPage = 1;
+          } else {
+            this.partesTrabajo = response.items || [];
+            this.totalItems = response.total || 0;
+            this.totalPages = response.pages || 0;
+            this.currentPage = response.page || 1;
+          }
         },
         error: (error) => {
           this.error = 'Error en la búsqueda';
@@ -137,7 +157,7 @@ export class PartesTrabajoComponent implements OnInit {
 
   cambiarPagina(page: number): void {
     if (page >= 1) {
-      this.filtros.skip = (page - 1) * (this.filtros.limit || 10);
+      this.filtros.skip = (page - 1) * (this.filtros.limit || 100);
       this.cargarPartesTrabajo();
     }
   }
