@@ -63,6 +63,22 @@ export interface ParteConHorasExtras {
   horas_extras_especiales: number;
   descripcion: string;
   cliente?: string;
+  numero?: string;
+  fecha_inicio?: string;
+  trabajo_solicitado?: string;
+  cliente_empresa?: string;
+  total_horas?: number;
+  tiene_horas_extras?: boolean; // Campo para marcar visualmente las partes con horas extras
+  id?: number;
+  orden_trabajo_numero?: string;
+}
+
+export interface ResponsePartesConHorasExtras {
+  tecnico: Tecnico;
+  partes: ParteConHorasExtras[];
+  total_horas_normales: number;
+  total_horas_extras_normales: number;
+  total_horas_extras_especiales: number;
 }
 
 @Injectable({
@@ -149,7 +165,7 @@ export class HorasExtrasService {
    * Obtiene las partes con horas extras de un técnico específico
    * Endpoint: GET /api/horas-extras/partes/{tecnicoId}/
    */
-  getPartesConHorasExtras(params: { tecnico_id: number, fecha_inicio?: string, fecha_fin?: string }): Observable<ParteConHorasExtras[]> {
+  getPartesConHorasExtras(params: { tecnico_id: number, fecha_inicio?: string, fecha_fin?: string }): Observable<any> {
     let httpParams = new HttpParams();
     
     if (params.fecha_inicio) {
@@ -159,6 +175,9 @@ export class HorasExtrasService {
       httpParams = httpParams.append('fecha_fin', params.fecha_fin);
     }
     
-    return this.http.get<ParteConHorasExtras[]>(`${this.baseUrl}/partes/${params.tecnico_id}/`, { params: httpParams });
+    const url = `${this.baseUrl}/partes/${params.tecnico_id}/`;
+    console.log('Llamando URL:', url, 'con parámetros:', httpParams.toString());
+    
+    return this.http.get<any>(url, { params: httpParams });
   }
 }

@@ -288,7 +288,7 @@
     <p class="text-gray-500 mt-3">Cargando detalle...</p>
   </div>
 
-  <div *ngIf="!loadingDetalle && detalleSeleccionado">
+  <div *ngIf="!loadingDetalle && detalleSeleccionado && detalleSeleccionado.totales">
     <!-- Resumen del técnico -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       <p-card>
@@ -316,7 +316,18 @@
         </div>
       </p-card>
     </div>
+  </div>
 
+  <!-- Mensaje cuando los datos del detalle no están completos -->
+  <div *ngIf="!loadingDetalle && detalleSeleccionado && !detalleSeleccionado.totales" class="text-center py-8">
+    <div class="flex flex-col items-center">
+      <i class="pi pi-exclamation-triangle text-4xl text-orange-400 mb-3"></i>
+      <p class="text-orange-600">Datos del técnico incompletos</p>
+      <p class="text-sm text-gray-400 mt-1">Los totales no están disponibles</p>
+    </div>
+  </div>
+
+  <div *ngIf="!loadingDetalle && detalleSeleccionado && detalleSeleccionado.totales">
     <!-- Tabla de partes detallados -->
     <p-table 
       [value]="detalleSeleccionado.partes" 
@@ -399,10 +410,14 @@
         <h3 class="text-lg font-semibold text-blue-900 mb-2">
           <i class="pi pi-user mr-2"></i>{{ tecnicoPartesSeleccionado }}
         </h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
           <div class="text-center">
             <div class="font-semibold text-blue-700">Total Partes</div>
             <div class="text-xl font-bold text-blue-900">{{ partesSeleccionadas.length }}</div>
+          </div>
+          <div class="text-center">
+            <div class="font-semibold text-amber-700">Con H. Extras</div>
+            <div class="text-xl font-bold text-amber-900">{{ getPartesConHorasExtras() }}</div>
           </div>
           <div class="text-center">
             <div class="font-semibold text-green-700">Horas Normales</div>
@@ -458,12 +473,25 @@
           <th pSortableColumn="descripcion" class="text-left" style="min-width: 200px">
             Descripción <p-sortIcon field="descripcion"></p-sortIcon>
           </th>
+          <th class="text-center" style="min-width: 80px">
+            Acciones
+          </th>
         </tr>
       </ng-template>
       
       <ng-template pTemplate="body" let-parte>
-        <tr>
-          <td>{{ formatearFecha(parte.fecha) }}</td>
+        <tr [class.bg-amber-50]="parte.tiene_horas_extras" 
+            [class.border-l-4]="parte.tiene_horas_extras" 
+            [class.border-amber-400]="parte.tiene_horas_extras"
+            [title]="parte.tiene_horas_extras ? 'Esta parte tiene horas extras' : 'Esta parte NO tiene horas extras'">
+          <td>
+            <div class="flex items-center">
+              <i *ngIf="parte.tiene_horas_extras" 
+                 class="pi pi-star-fill text-amber-500 mr-2" 
+                 pTooltip="Tiene horas extras"></i>
+              {{ formatearFecha(parte.fecha) }}
+            </div>
+          </td>
           <td class="font-mono font-medium">{{ parte.parte }}</td>
           <td class="font-medium">{{ parte.cliente || 'Sin cliente' }}</td>
           <td class="text-center">
@@ -496,12 +524,22 @@
               {{ parte.descripcion | slice:0:50 }}{{ parte.descripcion && parte.descripcion.length > 50 ? '...' : '' }}
             </span>
           </td>
+          <td class="text-center">
+            <p-button 
+              icon="pi pi-eye" 
+              size="small"
+              severity="info"
+              [text]="true"
+              (onClick)="verDetalleParte(parte)"
+              pTooltip="Ver detalle de la orden de trabajo">
+            </p-button>
+          </td>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="8" class="text-center py-8">
+          <td colspan="9" class="text-center py-8">
             <div class="flex flex-col items-center">
               <i class="pi pi-info-circle text-4xl text-gray-400 mb-3"></i>
               <p class="text-gray-500">No se encontraron partes de trabajo</p>
