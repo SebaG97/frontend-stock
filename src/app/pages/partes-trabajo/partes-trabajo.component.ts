@@ -121,14 +121,14 @@ export class PartesTrabajoComponent implements OnInit {
   calcularResumen(): void {
     if (this.partesTrabajo.length > 0) {
       const total = this.partesTrabajo.length;
-      const finalizados = this.partesTrabajo.filter(p => p.estado === 3).length;
+      const finalizados = this.partesTrabajo.filter(p => p.estado === 2).length; // Estado 2 = Finalizado
       
       this.resumen = {
         total_partes: total,
-        partes_pendientes: this.partesTrabajo.filter(p => p.estado === 1).length,
-        partes_en_proceso: this.partesTrabajo.filter(p => p.estado === 2).length,
+        partes_pendientes: this.partesTrabajo.filter(p => p.estado === 0).length, // Estado 0 = Aviso
+        partes_en_proceso: this.partesTrabajo.filter(p => p.estado === 1).length, // Estado 1 = En proceso
         partes_finalizados: finalizados,
-        partes_cancelados: this.partesTrabajo.filter(p => p.estado === 4).length,
+        partes_cancelados: 0, // No hay estado cancelado en el nuevo sistema
         total_horas_trabajadas: 0,
         promedio_horas_por_parte: 0
       };
@@ -210,10 +210,9 @@ export class PartesTrabajoComponent implements OnInit {
 
   getSeverityFromEstado(estado: number): string {
     switch (estado) {
-      case 1: return 'warning';
-      case 2: return 'info';
-      case 3: return 'success';
-      case 4: return 'danger';
+      case 0: return 'warning';  // Aviso
+      case 1: return 'info';     // En Proceso
+      case 2: return 'success';  // Finalizado
       default: return 'secondary';
     }
   }

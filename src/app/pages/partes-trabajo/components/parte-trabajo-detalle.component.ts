@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ParteTrabajo, EstadoParteTrabajo } from '../../../models/partes-trabajo.model';
+import { ParteTrabajo } from '../../../models/partes-trabajo.model';
 import { PartesTrabajoService } from '../../../services/partes-trabajo.service';
 
 @Component({
@@ -15,18 +15,12 @@ export class ParteTrabajoDetalleComponent implements OnInit {
   parte: ParteTrabajo | null = null;
   loading = false;
   error: string | null = null;
-  estadosDisponibles: Array<{label: string, value: number}> = [];
 
   constructor(
     private partesTrabajoService: PartesTrabajoService,
     private router: Router,
     private route: ActivatedRoute
-  ) {
-    this.estadosDisponibles = this.partesTrabajoService.getEstadosDisponibles().map(estado => ({
-      label: this.partesTrabajoService.formatearEstado(estado),
-      value: estado
-    }));
-  }
+  ) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -58,21 +52,6 @@ export class ParteTrabajoDetalleComponent implements OnInit {
     if (this.parte) {
       this.router.navigate(['/partes-trabajo', this.parte.id, 'editar']);
     }
-  }
-
-  cambiarEstado(nuevoEstado: number): void {
-    if (!this.parte) return;
-
-    const updateData: any = { estado: nuevoEstado };
-    this.partesTrabajoService.updateParteTrabajo(this.parte.id, updateData).subscribe({
-      next: (parteActualizada: ParteTrabajo) => {
-        this.parte = parteActualizada;
-      },
-      error: (error: any) => {
-        this.error = 'Error al cambiar el estado';
-        console.error('Error:', error);
-      }
-    });
   }
 
   eliminarParte(): void {

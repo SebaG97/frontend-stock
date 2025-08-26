@@ -95,7 +95,7 @@ export class PartesTrabajoService {
    * Obtener estados disponibles
    */
   getEstadosDisponibles(): number[] {
-    return [1, 2, 3, 4]; // 1: Pendiente, 2: En Proceso, 3: Finalizado, 4: Cancelado
+    return [0, 1, 2]; // 0: Aviso, 1: Parte en proceso, 2: Parte finalizado
   }
 
   /**
@@ -103,10 +103,9 @@ export class PartesTrabajoService {
    */
   formatearEstado(estado: number): string {
     switch (estado) {
-      case 1: return 'Pendiente';
-      case 2: return 'En Proceso';
-      case 3: return 'Finalizado';
-      case 4: return 'Cancelado';
+      case 0: return 'Aviso';
+      case 1: return 'En Proceso';
+      case 2: return 'Finalizado';
       default: return 'Desconocido';
     }
   }
@@ -116,10 +115,9 @@ export class PartesTrabajoService {
    */
   getClaseEstado(estado: number): string {
     switch (estado) {
-      case 1: return 'badge-warning';
-      case 2: return 'badge-info';
-      case 3: return 'badge-success';
-      case 4: return 'badge-danger';
+      case 0: return 'badge-warning';
+      case 1: return 'badge-info';
+      case 2: return 'badge-success';
       default: return 'badge-secondary';
     }
   }

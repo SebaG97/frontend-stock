@@ -43,13 +43,9 @@
                 <tr>
                   <td class="fw-bold">Estado:</td>
                   <td>
-                    <select class="form-select form-select-sm" 
-                            [value]="parte.estado"
-                            (change)="cambiarEstado($any($event.target).value)">
-                      <option *ngFor="let estado of estadosDisponibles" [value]="estado.value">
-                        {{ estado.label }}
-                      </option>
-                    </select>
+                    <span class="badge" [class]="getClaseEstado(parte.estado)">
+                      {{ formatearEstado(parte.estado) }}
+                    </span>
                   </td>
                 </tr>
               </table>
