@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: '/api'
+  apiUrl: 'http://192.168.100.218:8000/api'  // ✅ IP del servidor
 };

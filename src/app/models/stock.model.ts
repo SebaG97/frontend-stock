@@ -16,6 +16,7 @@ export interface StockMovimiento {
   tipo: 'ingreso' | 'egreso' | 'ajuste';
   motivo?: string;
   fecha: string;
+  observaciones?: string;
   producto?: Producto;
   deposito?: Deposito;
   cliente_id?: number;

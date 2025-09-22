@@ -47,8 +47,8 @@ export class PartesTrabajoComponent implements OnInit {
 
   // Filtros
   filtros: FiltrosPartesTrabajo = {
-    skip: 0,
-    limit: 100  // Aumentar para ver más registros
+    skip: 0
+    // Sin limit: el backend devolverá todos los registros
   };
 
   // Paginación
@@ -162,8 +162,9 @@ export class PartesTrabajoComponent implements OnInit {
 
   cambiarPagina(page: number): void {
     if (page >= 1) {
-      this.filtros.skip = (page - 1) * (this.filtros.limit || 100);
-      this.cargarPartesTrabajo();
+      // Sin límite: cargar todos los registros y usar paginación del lado cliente
+      this.currentPage = page;
+      this.filtrarTabla();
     }
   }
 

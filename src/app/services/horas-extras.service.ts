@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Tecnico {
   id: number;
@@ -85,7 +86,7 @@ export interface ResponsePartesConHorasExtras {
   providedIn: 'root'
 })
 export class HorasExtrasService {
-  private baseUrl = '/api/horas-extras';
+  private baseUrl = `${environment.apiUrl}/horas-extras`;
 
   constructor(private http: HttpClient) {}
 

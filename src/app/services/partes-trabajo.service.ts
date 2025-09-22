@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { 
   ParteTrabajo, 
   FiltrosPartesTrabajo, 
@@ -16,7 +17,7 @@ import {
   providedIn: 'root'
 })
 export class PartesTrabajoService {
-  private apiUrl = 'http://localhost:8000/api/partes-trabajo';
+  private apiUrl = `${environment.apiUrl}/partes-trabajo`;  // ✅ Usa la config
 
   constructor(private http: HttpClient) { }
 
@@ -88,7 +89,7 @@ export class PartesTrabajoService {
    * Obtener técnicos disponibles
    */
   getTecnicos(): Observable<TecnicoSimple[]> {
-    return this.http.get<TecnicoSimple[]>('http://localhost:8000/api/horas-extras/tecnicos');
+    return this.http.get<TecnicoSimple[]>(`${environment.apiUrl}/horas-extras/tecnicos`);
   }
 
   /**
@@ -134,8 +135,7 @@ export class PartesTrabajoService {
    * Buscar partes de trabajo (usa el mismo endpoint con filtros)
    */
   buscarPartesTrabajo(query: string): Observable<any> {
-    let params = new HttpParams()
-      .set('limit', '100'); // Aumentar límite para búsqueda
+    let params = new HttpParams(); // Sin límite para obtener todos los registros
     
     // Intentar buscar por múltiples campos
     if (query.trim()) {
