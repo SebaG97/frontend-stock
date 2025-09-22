@@ -2,25 +2,12 @@
   <p-card>
     <ng-template pTemplate="header">
       <div class="form-header">
-        <div class="flex align-items-center justify-content-between w-full">
-          <div class="flex align-items-center">
-            <i class="pi pi-plus-circle text-2xl mr-3 text-primary"></i>
-            <div>
-              <h3 class="m-0 text-primary">Nuevo Movimiento de Stock</h3>
-              <p class="m-0 text-sm text-600">Registra movimientos de entrada, salida o transferencia</p>
-            </div>
+        <div class="flex align-items-center">
+          <i class="pi pi-plus-circle text-2xl mr-3 text-primary"></i>
+          <div>
+            <h3 class="m-0 text-primary">Nuevo Movimiento de Stock</h3>
+            <p class="m-0 text-sm text-600">Registra movimientos de entrada, salida o transferencia</p>
           </div>
-          <p-button 
-            icon="pi pi-times" 
-            [text]="true" 
-            [rounded]="true" 
-            severity="secondary"
-            size="large"
-            (onClick)="cancel.emit()"
-            pTooltip="Cerrar formulario"
-            tooltipPosition="left"
-            class="close-button">
-          </p-button>
         </div>
       </div>
     </ng-template>
