@@ -7,29 +7,91 @@
   <p-table [value]="movimientos" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,25,50]" [loading]="loading" responsiveLayout="scroll">
     <ng-template pTemplate="header">
       <tr>
+        <th>ID</th>
         <th>Fecha</th>
         <th>Producto</th>
         <th>Depósito</th>
         <th>Cantidad</th>
         <th>Tipo</th>
         <th>Motivo</th>
+        <th>Transferencia</th>
         <th>Empresa</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-movimiento>
-      <tr>
+      <tr [class]="getRowClass(movimiento)">
+        <td>
+          <span class="font-mono text-sm font-semibold text-primary">
+            #{{ movimiento.id }}
+          </span>
+        </td>
         <td>{{ movimiento.fecha | date:'short' }}</td>
-        <td>{{ movimiento.producto?.descripcion || '-' }}</td>
-        <td>{{ movimiento.deposito?.nombre || '-' }}</td>
-        <td>{{ movimiento.cantidad }}</td>
-        <td>{{ movimiento.tipo }}</td>
-        <td>{{ movimiento.motivo || '-' }}</td>
+        <td>
+          <div class="flex flex-column">
+            <span class="font-medium">{{ movimiento.producto?.descripcion || '-' }}</span>
+            <small *ngIf="movimiento.producto?.codigo" class="text-600">{{ movimiento.producto.codigo }}</small>
+          </div>
+        </td>
+        <td>
+          <div class="flex align-items-center">
+            <i class="pi pi-warehouse mr-2 text-600"></i>
+            <span>{{ movimiento.deposito?.nombre || '-' }}</span>
+          </div>
+        </td>
+        <td>
+          <div class="flex align-items-center">
+            <span [class]="getCantidadClass(movimiento.tipo)" class="font-semibold">
+              {{ getTipoIcon(movimiento.tipo) }} {{ movimiento.cantidad }}
+            </span>
+          </div>
+        </td>
+        <td>
+          <p-tag 
+            [value]="getTipoLabel(movimiento.tipo)" 
+            [severity]="getTipoSeverity(movimiento.tipo)"
+            [icon]="getTipoIconClass(movimiento.tipo)">
+          </p-tag>
+        </td>
+        <td>
+          <div class="flex align-items-center">
+            <p-tag 
+              [value]="getMotivoLabel(movimiento.motivo)" 
+              [severity]="getMotivoSeverity(movimiento.motivo)"
+              size="small"
+              class="mr-2">
+            </p-tag>
+          </div>
+        </td>
+        <td>
+          <!-- ✅ Indicador especial para transferencias -->
+          <div *ngIf="esTransferencia(movimiento)" class="transfer-indicator">
+            <p-tag 
+              [value]="getTransferenciaLabel(movimiento)" 
+              [severity]="movimiento.tipo === 'egreso' ? 'warning' : 'success'"
+              [icon]="movimiento.tipo === 'egreso' ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"
+              size="small">
+            </p-tag>
+            <div class="mt-1">
+              <small class="text-600">
+                <i class="pi pi-link mr-1"></i>
+                Relacionado con ID {{ getTransferenciaVinculada(movimiento) }}
+              </small>
+            </div>
+            <div class="mt-1" *ngIf="getMovimientoRelacionadoInfo(movimiento) as relacionado">
+              <small class="text-500">
+                <i class="pi pi-warehouse mr-1"></i>
+                {{ movimiento.tipo === 'egreso' ? 'Hacia' : 'Desde' }}: {{ relacionado.deposito }}
+              </small>
+            </div>
+          </div>
+          <span *ngIf="!esTransferencia(movimiento)" class="text-600">-</span>
+        </td>
         <td>{{ movimiento.cliente_empresa || '-' }}</td>
       </tr>
     </ng-template>
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td colspan="7">No hay movimientos registrados</td>
+        <td colspan="9">No hay movimientos registrados</td>
       </tr>
     </ng-template>
   </p-table>

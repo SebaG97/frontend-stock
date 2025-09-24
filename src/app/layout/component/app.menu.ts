@@ -23,18 +23,36 @@ export class AppMenu {
             {
                 label: 'Gestión',
                 items: [
-                    { label: 'Depósitos', icon: 'pi pi-fw pi-database', routerLink: ['/depositos'] },
-                    { label: 'Estados', icon: 'pi pi-fw pi-flag', routerLink: ['/estados'] },
-                    { label: 'Productos', icon: 'pi pi-fw pi-shopping-cart', routerLink: ['/productos'] },
-                    { label: 'Stock', icon: 'pi pi-fw pi-box', routerLink: ['/stock'] },
-                    { label: 'Movimientos de Stock', icon: 'pi pi-fw pi-exchange', routerLink: ['/stock-movimientos'] },
-                    { label: 'Sincronizar Stock', icon: 'pi pi-fw pi-refresh', routerLink: ['/stock-sync'] },
-                    { label: 'Marcas', icon: 'pi pi-fw pi-tag', routerLink: ['/marcas'] },
-                    { label: 'Procedencias', icon: 'pi pi-fw pi-globe', routerLink: ['/procedencias'] },
-                    { label: 'Línea de Productos', icon: 'pi pi-fw pi-list', routerLink: ['/producto-lineas'] },
-                    { label: 'Proveedores', icon: 'pi pi-fw pi-users', routerLink: ['/proveedores'] },
-                    { label: 'Rubros', icon: 'pi pi-fw pi-th-large', routerLink: ['/rubros'] },
-                    { label: 'Tipos de Producto', icon: 'pi pi-fw pi-box', routerLink: ['/tipos-producto'] }
+                    {
+                        label: 'Inventario',
+                        icon: 'pi pi-fw pi-box',
+                        items: [
+                            { label: 'Stock', icon: 'pi pi-fw pi-warehouse', routerLink: ['/stock'] },
+                            { label: 'Movimientos', icon: 'pi pi-fw pi-arrows-h', routerLink: ['/stock-movimientos'] },
+                            { label: 'Sincronizar', icon: 'pi pi-fw pi-refresh', routerLink: ['/stock-sync'] },
+                        ]
+                    },
+                    {
+                        label: 'Productos',
+                        icon: 'pi pi-fw pi-shopping-cart',
+                        items: [
+                            { label: 'Productos', icon: 'pi pi-fw pi-shopping-bag', routerLink: ['/productos'] },
+                            { label: 'Marcas', icon: 'pi pi-fw pi-tag', routerLink: ['/marcas'] },
+                            { label: 'Líneas', icon: 'pi pi-fw pi-list', routerLink: ['/producto-lineas'] },
+                            { label: 'Tipos', icon: 'pi pi-fw pi-th-large', routerLink: ['/tipos-producto'] },
+                            { label: 'Rubros', icon: 'pi pi-fw pi-sitemap', routerLink: ['/rubros'] }
+                        ]
+                    },
+                    {
+                        label: 'Configuración',
+                        icon: 'pi pi-fw pi-cog',
+                        items: [
+                            { label: 'Depósitos', icon: 'pi pi-fw pi-database', routerLink: ['/depositos'] },
+                            { label: 'Estados', icon: 'pi pi-fw pi-flag', routerLink: ['/estados'] },
+                            { label: 'Procedencias', icon: 'pi pi-fw pi-globe', routerLink: ['/procedencias'] },
+                            { label: 'Proveedores', icon: 'pi pi-fw pi-users', routerLink: ['/proveedores'] }
+                        ]
+                    }
                 ]
             },
             {

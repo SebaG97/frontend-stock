@@ -1,1 +1,81 @@
-.card { margin: 2rem 0; }
+.card { 
+  margin: 2rem 0; 
+}
+
+// ✅ Estilos para transferencias
+.transfer-row-origen {
+  border-left: 4px solid var(--orange-500);
+  background-color: var(--orange-50);
+}
+
+.transfer-row-destino {
+  border-left: 4px solid var(--green-500);
+  background-color: var(--green-50);
+}
+
+.transfer-indicator {
+  .p-tag {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  
+  small {
+    font-size: 0.75rem;
+    display: block;
+    line-height: 1.2;
+    
+    &:first-of-type {
+      font-weight: 600;
+      color: var(--primary-600);
+    }
+    
+    &:last-of-type {
+      color: var(--text-color-secondary);
+      font-style: italic;
+    }
+  }
+  
+  .pi {
+    font-size: 0.7rem;
+  }
+}
+
+// ✅ Estilos para las etiquetas de tipo
+.p-tag {
+  font-weight: 600;
+  
+  &.p-tag-success {
+    background-color: var(--green-100);
+    color: var(--green-800);
+  }
+  
+  &.p-tag-warning {
+    background-color: var(--orange-100);
+    color: var(--orange-800);
+  }
+  
+  &.p-tag-info {
+    background-color: var(--blue-100);
+    color: var(--blue-800);
+  }
+}
+
+// ✅ Mejoras visuales para la tabla
+.p-datatable {
+  .p-datatable-tbody > tr {
+    transition: all 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    &.transfer-row-origen:hover {
+      background-color: var(--orange-100);
+    }
+    
+    &.transfer-row-destino:hover {
+      background-color: var(--green-100);
+    }
+  }
+}
