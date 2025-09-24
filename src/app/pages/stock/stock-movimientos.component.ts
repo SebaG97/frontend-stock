@@ -89,24 +89,44 @@ export class StockMovimientosComponent implements OnInit {
     this.showDialog = true;
   }
 
-  onSave(movimiento: Partial<StockMovimiento>) {
+  onSave(movimiento: any) {
     let obs$;
-    if (movimiento.tipo === 'ingreso') {
+    
+    // ✅ Usar el nuevo endpoint específico para transferencias
+    if (movimiento.es_transferencia && movimiento.deposito_destino_id) {
+      const transferenciaPayload = {
+        producto_id: movimiento.producto_id,
+        deposito_origen_id: movimiento.deposito_id,
+        deposito_destino_id: movimiento.deposito_destino_id,
+        cantidad: movimiento.cantidad,
+        motivo: movimiento.motivo || 'transferencia_deposito'
+      };
+      obs$ = this.stockService.transferenciaMovimiento(transferenciaPayload);
+    } else if (movimiento.tipo === 'ingreso') {
       obs$ = this.stockService.ingresoMovimiento(movimiento);
     } else if (movimiento.tipo === 'egreso') {
       obs$ = this.stockService.egresoMovimiento(movimiento);
     } else {
       obs$ = this.stockService.ajusteMovimiento(movimiento);
     }
+    
     obs$.subscribe({
       next: () => {
         this.showDialog = false;
         this.loadMovimientos();
-        this.messageService.add({severity:'success', summary:'Éxito', detail:'Movimiento registrado correctamente'});
+        this.messageService.add({
+          severity:'success', 
+          summary:'Éxito', 
+          detail: movimiento.es_transferencia ? 'Transferencia realizada correctamente' : 'Movimiento registrado correctamente'
+        });
       },
       error: (err) => {
         this.showDialog = false;
-        this.messageService.add({severity:'error', summary:'Error', detail: err?.error?.detail || 'No se pudo registrar el movimiento'});
+        this.messageService.add({
+          severity:'error', 
+          summary:'Error', 
+          detail: err?.error?.detail || 'No se pudo registrar el movimiento'
+        });
       }
     });
   }

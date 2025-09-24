@@ -60,6 +60,17 @@ export class StockService {
     return this.http.post<StockMovimiento>(`${this.apiUrl}/movimientos/ajuste/`, payload);
   }
 
+  // ✅ Nuevo método para transferencias de depósito
+  transferenciaMovimiento(payload: {
+    producto_id: number;
+    deposito_origen_id: number;
+    deposito_destino_id: number;
+    cantidad: number;
+    motivo?: string;
+  }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/movimientos/transferencia/`, payload);
+  }
+
   syncOrdenes(): Observable<any> {
     return this.http.post(`${this.apiUrl}/sync-ordenes/`, {});
   }
