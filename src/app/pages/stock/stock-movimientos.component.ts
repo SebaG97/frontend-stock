@@ -1,6 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { StockService } from './stock.service';
-import { StockMovimiento } from '../../models/stock.model';
+import { 
+  StockMovimiento,
+  MovimientoMultiple,
+  TransferenciaMultiple,
+  RespuestaMovimientoMultiple,
+  RespuestaTransferenciaMultiple
+} from '../../models/stock.model';
 import { ProductoService } from './producto.service';
 import { DepositoService } from './deposito.service';
 
@@ -12,12 +18,13 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { MovimientoFormComponent } from './movimiento-form.component';
+import { MovimientoMultipleFormComponent } from './movimiento-multiple-form.component';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 @Component({
   selector: 'app-stock-movimientos',
   standalone: true,
-  imports: [CommonModule, FormsModule, TableModule, CardModule, DialogModule, ButtonModule, TagModule, MovimientoFormComponent, ToastModule],
+  imports: [CommonModule, FormsModule, TableModule, CardModule, DialogModule, ButtonModule, TagModule, MovimientoFormComponent, MovimientoMultipleFormComponent, ToastModule],
   templateUrl: './stock-movimientos.component.html',
   styleUrls: ['./stock-movimientos.component.scss'],
   providers: [MessageService]
@@ -26,6 +33,7 @@ export class StockMovimientosComponent implements OnInit {
   movimientos: StockMovimiento[] = [];
   loading = false;
   showDialog = false;
+  esMovimientoMultiple = false;
   selectedMovimiento: Partial<StockMovimiento> = {};
   productos: any[] = [];
   depositos: any[] = [];
@@ -85,7 +93,8 @@ export class StockMovimientosComponent implements OnInit {
     });
   }
 
-  openNew() {
+  openNew(esMultiple: boolean = false) {
+    this.esMovimientoMultiple = esMultiple;
     this.selectedMovimiento = { tipo: 'ingreso' };
     this.showDialog = true;
   }
@@ -132,8 +141,77 @@ export class StockMovimientosComponent implements OnInit {
     });
   }
 
+  // ✅ Método para guardar movimientos múltiples
+  onSaveMultiple(payload: MovimientoMultiple | TransferenciaMultiple) {
+    // Verificar si es transferencia múltiple
+    if ('deposito_destino_id' in payload) {
+      const transferencia = payload as TransferenciaMultiple;
+      this.stockService.transferenciaMultiple(transferencia).subscribe({
+        next: (response: RespuestaTransferenciaMultiple) => {
+          this.handleMultipleResponse(response, true);
+        },
+        error: (err: any) => {
+          this.handleMultipleError(err);
+        }
+      });
+    } else {
+      const movimiento = payload as MovimientoMultiple;
+      this.stockService.movimientoMultiple(movimiento).subscribe({
+        next: (response: RespuestaMovimientoMultiple) => {
+          this.handleMultipleResponse(response, false);
+        },
+        error: (err: any) => {
+          this.handleMultipleError(err);
+        }
+      });
+    }
+  }
+
+  private handleMultipleResponse(response: RespuestaMovimientoMultiple | RespuestaTransferenciaMultiple, esTransferencia: boolean) {
+    this.showDialog = false;
+    this.esMovimientoMultiple = false;
+    this.loadMovimientos();
+    
+    // Mostrar resultado detallado
+    const mensajeExito = esTransferencia ? 
+      `Transferencia múltiple completada: ${response.items_exitosos}/${response.total_items} productos` :
+      `Movimiento múltiple completado: ${response.items_exitosos}/${response.total_items} productos`;
+      
+    this.messageService.add({
+      severity: response.items_fallidos > 0 ? 'warning' : 'success',
+      summary: response.items_fallidos > 0 ? 'Completado con errores' : 'Éxito',
+      detail: mensajeExito,
+      life: 5000
+    });
+    
+    // Mostrar errores específicos si los hay
+    if (response.items_fallidos > 0) {
+      response.resultados.forEach((resultado: any) => {
+        if (!resultado.exito) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error en producto',
+            detail: `${resultado.producto?.descripcion}: ${resultado.mensaje}`,
+            life: 8000
+          });
+        }
+      });
+    }
+  }
+
+  private handleMultipleError(err: any) {
+    this.showDialog = false;
+    this.esMovimientoMultiple = false;
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: err?.error?.detail || 'No se pudo realizar la operación múltiple'
+    });
+  }
+
   onCancel() {
     this.showDialog = false;
+    this.esMovimientoMultiple = false;
   }
 
   // ✅ Métodos para etiquetas y visualización mejorada

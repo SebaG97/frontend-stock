@@ -2,7 +2,20 @@
 <div class="card p-6">
   <div class="flex justify-content-between align-items-center mb-3">
     <h5>Historial de movimientos de stock</h5>
-    <button pButton label="Nuevo Movimiento" icon="pi pi-plus" (click)="openNew()"></button>
+    <div class="flex gap-2">
+      <p-button 
+        label="Movimiento Simple" 
+        icon="pi pi-plus" 
+        (onClick)="openNew(false)"
+        severity="secondary"
+        [outlined]="true">
+      </p-button>
+      <p-button 
+        label="Movimiento Múltiple" 
+        icon="pi pi-list" 
+        (onClick)="openNew(true)">
+      </p-button>
+    </div>
   </div>
   <p-table [value]="movimientos" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10,25,50]" [loading]="loading" responsiveLayout="scroll">
     <ng-template pTemplate="header">
@@ -96,9 +109,28 @@
     </ng-template>
   </p-table>
   <p-dialog [(visible)]="showDialog" [modal]="true" [style]="{width: '90vw', 'max-width': '1400px'}" [closable]="false">
-    <ng-template pTemplate="header">Nuevo Movimiento</ng-template>
+    <ng-template pTemplate="header">
+      {{ esMovimientoMultiple ? 'Nuevo Movimiento Múltiple' : 'Nuevo Movimiento' }}
+    </ng-template>
     <ng-template pTemplate="content">
-      <app-movimiento-form [movimiento]="selectedMovimiento" [productos]="productos" [depositos]="depositos" (save)="onSave($event)" (cancel)="onCancel()"></app-movimiento-form>
+      <!-- Formulario Simple -->
+      <app-movimiento-form 
+        *ngIf="!esMovimientoMultiple"
+        [movimiento]="selectedMovimiento" 
+        [productos]="productos" 
+        [depositos]="depositos" 
+        (save)="onSave($event)" 
+        (cancel)="onCancel()">
+      </app-movimiento-form>
+      
+      <!-- Formulario Múltiple -->
+      <app-movimiento-multiple-form 
+        *ngIf="esMovimientoMultiple"
+        [productos]="productos" 
+        [depositos]="depositos" 
+        (save)="onSaveMultiple($event)" 
+        (cancel)="onCancel()">
+      </app-movimiento-multiple-form>
     </ng-template>
   </p-dialog>
 </div>

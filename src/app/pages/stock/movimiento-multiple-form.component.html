@@ -1,0 +1,276 @@
+<div class="movimiento-multiple-container">
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="form-header">
+        <div class="flex align-items-center justify-content-between w-full">
+          <div class="flex align-items-center">
+            <i class="pi pi-list text-2xl mr-3 text-primary"></i>
+            <div>
+              <h3 class="m-0 text-primary">Movimiento Múltiple de Stock</h3>
+              <p class="m-0 text-sm text-600">Registra múltiples productos en una sola operación</p>
+            </div>
+          </div>
+          <p-button 
+            icon="pi pi-times" 
+            [text]="true" 
+            [rounded]="true" 
+            severity="secondary"
+            size="large"
+            (onClick)="cancel.emit()"
+            pTooltip="Cerrar formulario"
+            tooltipPosition="left"
+            class="close-button">
+          </p-button>
+        </div>
+      </div>
+    </ng-template>
+
+    <form (ngSubmit)="onSave()" #form="ngForm" class="p-fluid">
+      
+      <!-- Sección: Tipo de Movimiento -->
+      <div class="section-card mb-4">
+        <h4 class="section-title">
+          <i class="pi pi-cog mr-2"></i>
+          Tipo de Movimiento Múltiple
+        </h4>
+        
+        <div class="field field-full-width">
+          <label for="tipoMovimiento" class="form-label">Selecciona el tipo de operación *</label>
+          <p-dropdown 
+            [options]="tiposMovimiento" 
+            optionLabel="name" 
+            placeholder="Selecciona el tipo de movimiento múltiple"
+            [(ngModel)]="tipoMovimientoSeleccionado"
+            name="tipoMovimiento"
+            (onChange)="onTipoMovimientoChange($event.value)"
+            [style]="{'width': '100%', 'height': '3.5rem'}"
+            required>
+            
+            <ng-template pTemplate="selectedItem" let-option>
+              <div class="flex align-items-center" *ngIf="option">
+                <i [class]="option.icon + ' mr-2'" [style.color]="'var(--' + option.color + '-500)'"></i>
+                <span class="font-medium">{{ option.name }}</span>
+                <p-tag 
+                  [value]="option.tipo" 
+                  [severity]="getSeverityForTipo(option.tipo)"
+                  class="ml-auto">
+                </p-tag>
+              </div>
+            </ng-template>
+            
+            <ng-template pTemplate="item" let-option>
+              <div class="flex flex-column py-2">
+                <div class="flex align-items-center mb-1">
+                  <i [class]="option.icon + ' mr-2'" [style.color]="'var(--' + option.color + '-500)'"></i>
+                  <span class="font-medium">{{ option.name }}</span>
+                  <p-tag 
+                    [value]="option.tipo" 
+                    [severity]="getSeverityForTipo(option.tipo)"
+                    class="ml-auto">
+                  </p-tag>
+                </div>
+                <small class="text-600">{{ option.description }}</small>
+              </div>
+            </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Sección: Depósitos -->
+      <div class="section-card mb-4" *ngIf="tipoMovimientoSeleccionado">
+        <h4 class="section-title">
+          <i class="pi pi-warehouse mr-2"></i>
+          {{ esTransferencia ? 'Depósitos de Origen y Destino' : 'Depósito' }}
+        </h4>
+        
+        <div [class]="esTransferencia ? 'form-grid-transfer' : 'field field-full-width'">
+          <!-- Depósito Origen -->
+          <div class="field">
+            <label for="deposito" class="form-label">
+              {{ esTransferencia ? 'Depósito de Origen' : 'Depósito' }} *
+            </label>
+            <p-dropdown 
+              [options]="depositos" 
+              optionLabel="nombre" 
+              [(ngModel)]="depositoOrigen" 
+              name="depositoOrigen" 
+              placeholder="Selecciona un depósito"
+              required>
+            </p-dropdown>
+          </div>
+
+          <!-- Depósito Destino (solo para transferencias) -->
+          <div class="field" *ngIf="esTransferencia">
+            <label for="depositoDestino" class="form-label">Depósito de Destino *</label>
+            <p-dropdown 
+              [options]="depositosDisponiblesDestino" 
+              optionLabel="nombre" 
+              [(ngModel)]="depositoDestino" 
+              name="depositoDestino" 
+              placeholder="Selecciona el depósito destino"
+              required>
+            </p-dropdown>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Sección: Agregar Productos -->
+      <div class="section-card mb-4" *ngIf="tipoMovimientoSeleccionado && depositoOrigen">
+        <h4 class="section-title">
+          <i class="pi pi-plus mr-2"></i>
+          Agregar Productos
+        </h4>
+        
+        <div class="form-grid">
+          <div class="field">
+            <label for="producto" class="form-label">Producto *</label>
+            <p-dropdown 
+              [options]="productosDisponibles" 
+              optionLabel="descripcion" 
+              [(ngModel)]="productoSeleccionado" 
+              name="productoSeleccionado" 
+              placeholder="Selecciona un producto"
+              [filter]="true"
+              filterBy="descripcion,codigo">
+              
+              <ng-template pTemplate="selectedItem" let-option>
+                <div *ngIf="option">
+                  <span class="font-medium">{{ option.descripcion }}</span>
+                  <small *ngIf="option.codigo" class="text-600 ml-2">({{ option.codigo }})</small>
+                </div>
+              </ng-template>
+              
+              <ng-template pTemplate="item" let-option>
+                <div class="flex flex-column">
+                  <span class="font-medium">{{ option.descripcion }}</span>
+                  <small *ngIf="option.codigo" class="text-600">Código: {{ option.codigo }}</small>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          
+          <div class="field">
+            <label for="cantidad" class="form-label">Cantidad *</label>
+            <p-inputNumber
+              [(ngModel)]="cantidadSeleccionada"
+              name="cantidadSeleccionada"
+              mode="decimal"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              placeholder="0.00"
+              [min]="0.01">
+            </p-inputNumber>
+          </div>
+          
+          <div class="field flex align-items-end">
+            <p-button 
+              type="button"
+              label="Agregar"
+              icon="pi pi-plus"
+              (onClick)="agregarItem()"
+              [disabled]="!productoSeleccionado || !cantidadSeleccionada || cantidadSeleccionada <= 0"
+              class="w-full">
+            </p-button>
+          </div>
+        </div>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Sección: Lista de Productos -->
+      <div class="section-card mb-4" *ngIf="items.length > 0">
+        <h4 class="section-title">
+          <i class="pi pi-list mr-2"></i>
+          Productos Seleccionados
+          <p-tag [value]="totalProductos + ' productos'" severity="info" class="ml-2"></p-tag>
+        </h4>
+        
+        <p-table [value]="items" [responsive]="true">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Producto</th>
+              <th>Código</th>
+              <th>Cantidad</th>
+              <th>Acciones</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item let-i="rowIndex">
+            <tr>
+              <td>
+                <span class="font-medium">{{ item.producto?.descripcion || 'N/A' }}</span>
+              </td>
+              <td>
+                <small class="text-600">{{ item.producto?.codigo || '-' }}</small>
+              </td>
+              <td>
+                <span class="font-semibold">{{ item.cantidad }}</span>
+              </td>
+              <td>
+                <p-button 
+                  icon="pi pi-trash" 
+                  severity="danger"
+                  size="small"
+                  [text]="true"
+                  (onClick)="eliminarItem(i)"
+                  pTooltip="Eliminar producto">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td colspan="2" class="font-semibold">Total:</td>
+              <td class="font-semibold">{{ totalCantidad }}</td>
+              <td></td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <p-divider></p-divider>
+
+      <!-- Sección: Observaciones -->
+      <div class="section-card mb-4" *ngIf="tipoMovimientoSeleccionado">
+        <h4 class="section-title">
+          <i class="pi pi-comment mr-2"></i>
+          Observaciones
+        </h4>
+        
+        <div class="field field-full-width">
+          <label for="observaciones" class="form-label">Observaciones adicionales</label>
+          <input 
+            type="text" 
+            pInputText 
+            [(ngModel)]="observaciones" 
+            name="observaciones"
+            placeholder="Agrega cualquier información adicional..."
+            class="w-full">
+        </div>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="flex justify-content-end gap-3 mt-5">
+        <p-button 
+          type="button" 
+          label="Cancelar" 
+          icon="pi pi-times"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="cancel.emit()">
+        </p-button>
+        
+        <p-button 
+          type="submit" 
+          [label]="esTransferencia ? 'Realizar Transferencia Múltiple' : 'Registrar Movimiento Múltiple'"
+          [icon]="esTransferencia ? 'pi pi-arrow-right-arrow-left' : 'pi pi-check'"
+          [disabled]="!getFormValidation()"
+          [loading]="false">
+        </p-button>
+      </div>
+    </form>
+  </p-card>
+</div>

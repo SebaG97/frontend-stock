@@ -42,3 +42,68 @@ export interface Deposito {
   id: number;
   nombre: string;
 }
+
+// ✅ Nuevas interfaces para movimientos múltiples
+export interface ItemMovimiento {
+  producto_id: number;
+  cantidad: number;
+  producto?: Producto;
+}
+
+export interface ItemTransferencia {
+  producto_id: number;
+  cantidad: number;
+  producto?: Producto;
+}
+
+export interface MovimientoMultiple {
+  deposito_id: number;
+  tipo: 'ingreso' | 'egreso';
+  motivo: string;
+  observaciones?: string;
+  items: ItemMovimiento[];
+}
+
+export interface TransferenciaMultiple {
+  deposito_origen_id: number;
+  deposito_destino_id: number;
+  motivo?: string;
+  observaciones?: string;
+  items: ItemTransferencia[];
+}
+
+export interface ResultadoItemMovimiento {
+  producto_id: number;
+  cantidad: number;
+  exito: boolean;
+  mensaje?: string;
+  producto?: Producto;
+}
+
+export interface ResultadoItemTransferencia {
+  producto_id: number;
+  cantidad: number;
+  exito: boolean;
+  mensaje?: string;
+  producto?: Producto;
+}
+
+export interface RespuestaMovimientoMultiple {
+  exito: boolean;
+  mensaje: string;
+  total_items: number;
+  items_exitosos: number;
+  items_fallidos: number;
+  valor_total_movido: number;
+  resultados: ResultadoItemMovimiento[];
+}
+
+export interface RespuestaTransferenciaMultiple {
+  exito: boolean;
+  mensaje: string;
+  total_items: number;
+  items_exitosos: number;
+  items_fallidos: number;
+  valor_total_transferido: number;
+  resultados: ResultadoItemTransferencia[];
+}

@@ -2,7 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Stock, StockMovimiento } from '../../models/stock.model';
+import { 
+  Stock, 
+  StockMovimiento, 
+  MovimientoMultiple, 
+  TransferenciaMultiple, 
+  RespuestaMovimientoMultiple, 
+  RespuestaTransferenciaMultiple 
+} from '../../models/stock.model';
 
 @Injectable({ providedIn: 'root' })
 export class StockService {
@@ -69,6 +76,15 @@ export class StockService {
     motivo?: string;
   }): Observable<any> {
     return this.http.post(`${this.apiUrl}/movimientos/transferencia/`, payload);
+  }
+
+  // ✅ Nuevos métodos para movimientos múltiples
+  movimientoMultiple(payload: MovimientoMultiple): Observable<RespuestaMovimientoMultiple> {
+    return this.http.post<RespuestaMovimientoMultiple>(`${this.apiUrl}/movimientos/multiple/`, payload);
+  }
+
+  transferenciaMultiple(payload: TransferenciaMultiple): Observable<RespuestaTransferenciaMultiple> {
+    return this.http.post<RespuestaTransferenciaMultiple>(`${this.apiUrl}/movimientos/transferencia-multiple/`, payload);
   }
 
   syncOrdenes(): Observable<any> {
