@@ -55,16 +55,19 @@ export class StockService {
     return this.http.get<StockMovimiento[]>(`${this.apiUrl}/movimientos/filtro/`, { params: httpParams });
   }
 
-  ingresoMovimiento(payload: any): Observable<StockMovimiento> {
-    return this.http.post<StockMovimiento>(`${this.apiUrl}/movimientos/ingreso/`, payload);
+  ingresoMovimiento(payload: any, parte_trabajo_id?: number): Observable<StockMovimiento> {
+    const data = parte_trabajo_id ? { ...payload, parte_trabajo_id } : payload;
+    return this.http.post<StockMovimiento>(`${this.apiUrl}/movimientos/ingreso/`, data);
   }
 
-  egresoMovimiento(payload: any): Observable<StockMovimiento> {
-    return this.http.post<StockMovimiento>(`${this.apiUrl}/movimientos/egreso/`, payload);
+  egresoMovimiento(payload: any, parte_trabajo_id?: number): Observable<StockMovimiento> {
+    const data = parte_trabajo_id ? { ...payload, parte_trabajo_id } : payload;
+    return this.http.post<StockMovimiento>(`${this.apiUrl}/movimientos/egreso/`, data);
   }
 
-  ajusteMovimiento(payload: any): Observable<StockMovimiento> {
-    return this.http.post<StockMovimiento>(`${this.apiUrl}/movimientos/ajuste/`, payload);
+  ajusteMovimiento(payload: any, parte_trabajo_id?: number): Observable<StockMovimiento> {
+    const data = parte_trabajo_id ? { ...payload, parte_trabajo_id } : payload;
+    return this.http.post<StockMovimiento>(`${this.apiUrl}/movimientos/ajuste/`, data);
   }
 
   // ✅ Nuevo método para transferencias de depósito
@@ -74,6 +77,7 @@ export class StockService {
     deposito_destino_id: number;
     cantidad: number;
     motivo?: string;
+    parte_trabajo_id?: number;
   }): Observable<any> {
     return this.http.post(`${this.apiUrl}/movimientos/transferencia/`, payload);
   }

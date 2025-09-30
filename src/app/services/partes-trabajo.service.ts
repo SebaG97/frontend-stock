@@ -10,7 +10,9 @@ import {
   ResumenPartesTrabajo,
   ParteTrabajoCreate,
   ParteTrabajoUpdate,
-  TecnicoSimple
+  TecnicoSimple,
+  ProductoParteTrabajoOut,
+  ParteTrabajoConProductos
 } from '../models/partes-trabajo.model';
 
 @Injectable({
@@ -143,6 +145,37 @@ export class PartesTrabajoService {
     }
     
     return this.http.get<any>(this.apiUrl, { params });
+  }
+
+  /**
+   * ✅ NUEVO: Obtener órdenes de trabajo con sus productos asociados
+   * NOTA: Este endpoint necesita ser implementado en el backend
+   */
+  getPartesTrabajoConProductos(filtros?: FiltrosPartesTrabajo): Observable<ParteTrabajoConProductos[]> {
+    let params = new HttpParams();
+    
+    if (filtros) {
+      if (filtros.skip !== undefined) params = params.set('skip', filtros.skip.toString());
+      if (filtros.limit !== undefined) params = params.set('limit', filtros.limit.toString());
+      if (filtros.numero) params = params.set('numero', filtros.numero.toString());
+      if (filtros.estado !== undefined) params = params.set('estado', filtros.estado.toString());
+      if (filtros.tecnico_id) params = params.set('tecnico_id', filtros.tecnico_id.toString());
+      if (filtros.cliente_empresa) params = params.set('cliente_empresa', filtros.cliente_empresa);
+      if (filtros.fecha_desde) params = params.set('fecha_desde', filtros.fecha_desde);
+      if (filtros.fecha_hasta) params = params.set('fecha_hasta', filtros.fecha_hasta);
+      if (filtros.archivado !== undefined) params = params.set('archivado', filtros.archivado.toString());
+      if (filtros.firmado !== undefined) params = params.set('firmado', filtros.firmado.toString());
+    }
+
+    return this.http.get<ParteTrabajoConProductos[]>(`${this.apiUrl}/con-productos`, { params });
+  }
+
+  /**
+   * ✅ NUEVO: Obtener productos utilizados en una orden de trabajo específica
+   * NOTA: Este endpoint necesita ser implementado en el backend
+   */
+  getProductosPorParteTrabajo(parteTrabajoId: number): Observable<ProductoParteTrabajoOut[]> {
+    return this.http.get<ProductoParteTrabajoOut[]>(`${this.apiUrl}/${parteTrabajoId}/productos`);
   }
 
   /**

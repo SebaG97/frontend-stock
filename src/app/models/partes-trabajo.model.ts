@@ -90,3 +90,22 @@ export interface ParteTrabajoUpdate {
   archivado?: boolean;
   firmado?: boolean;
 }
+
+// ✅ Nuevas interfaces para productos en órdenes de trabajo
+export interface ProductoParteTrabajoOut {
+  id: number;
+  producto_id: number;
+  producto_nombre: string;
+  producto_codigo?: string;
+  cantidad: number;
+  deposito_id: number;
+  deposito_nombre: string;
+  fecha_movimiento: string;
+  tipo_movimiento: string;
+  observaciones?: string;
+}
+
+export interface ParteTrabajoConProductos extends ParteTrabajo {
+  productos_utilizados: ProductoParteTrabajoOut[];
+  total_productos: number;
+}

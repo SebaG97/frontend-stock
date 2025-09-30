@@ -61,6 +61,7 @@ export interface MovimientoMultiple {
   tipo: 'ingreso' | 'egreso';
   motivo: string;
   observaciones?: string;
+  parte_trabajo_id?: number;
   items: ItemMovimiento[];
 }
 
@@ -69,6 +70,7 @@ export interface TransferenciaMultiple {
   deposito_destino_id: number;
   motivo?: string;
   observaciones?: string;
+  parte_trabajo_id?: number;
   items: ItemTransferencia[];
 }
 
