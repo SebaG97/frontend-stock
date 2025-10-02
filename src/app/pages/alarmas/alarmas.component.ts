@@ -229,6 +229,7 @@ export class AlarmasComponent implements OnInit, OnDestroy {
 
   cambiarVista(modo: 'grid' | 'tabla'): void {
     this.vistaModo = modo;
+    this.cdr.detectChanges();
   }
 
   verDetalleVessel(vessel: Vessel): void {

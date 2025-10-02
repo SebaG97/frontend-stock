@@ -35,7 +35,7 @@ export class LayoutService {
     };
 
     _state: LayoutState = {
-        staticMenuDesktopInactive: false,
+        staticMenuDesktopInactive: true,  // Ocultar menú en desktop por defecto
         overlayMenuActive: false,
         configSidebarVisible: false,
         staticMenuMobileActive: false,

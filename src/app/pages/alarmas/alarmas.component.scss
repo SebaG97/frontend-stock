@@ -109,7 +109,7 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
       &:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-        border-color: darken($color-border, 15%);
+        border-color: color.adjust($color-border, $lightness: -15%);
       }
       
       .metric-content {
@@ -161,7 +161,7 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
       
       // Colores específicos por tipo de métrica
       &.metric-total {
-        background: linear-gradient(135deg, $color-accent 0%, lighten($color-accent, 10%) 100%);
+        background: linear-gradient(135deg, $color-accent 0%, color.adjust($color-accent, $lightness: 10%) 100%);
         border-color: $color-accent;
         color: white;
         
@@ -177,10 +177,10 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
       &.metric-operational {
         background: $color-success-bg;
         border-left: 5px solid $color-normal;
-        border-top: 1px solid lighten($color-normal, 30%);
+        border-top: 1px solid color.adjust($color-normal, $lightness: 30%);
         
         .metric-number, .metric-percentage {
-          color: darken($color-normal, 10%) !important;
+          color: color.adjust($color-normal, $lightness: -10%) !important;
           font-weight: 800;
         }
         
@@ -193,15 +193,15 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
       &.metric-warning {
         background: $color-warning-bg;
         border-left: 5px solid $color-warning;
-        border-top: 1px solid lighten($color-warning, 20%);
+        border-top: 1px solid color.adjust($color-warning, $lightness: 20%);
         
         .metric-number {
-          color: darken($color-warning, 20%) !important;
+          color: color.adjust($color-warning, $lightness: -20%) !important;
           font-weight: 800;
         }
         
         .metric-icon {
-          color: darken($color-warning, 10%) !important;
+          color: color.adjust($color-warning, $lightness: -10%) !important;
           opacity: 0.7;
         }
       }
@@ -209,10 +209,10 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
       &.metric-attention {
         background: $color-attention-bg;
         border-left: 5px solid $color-attention;
-        border-top: 1px solid lighten($color-attention, 20%);
+        border-top: 1px solid color.adjust($color-attention, $lightness: 20%);
         
         .metric-number {
-          color: darken($color-attention, 10%) !important;
+          color: color.adjust($color-attention, $lightness: -10%) !important;
           font-weight: 800;
         }
         
@@ -225,11 +225,11 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
       &.metric-critical {
         background: $color-critical-bg;
         border-left: 5px solid $color-critical;
-        border-top: 1px solid lighten($color-critical, 20%);
+        border-top: 1px solid color.adjust($color-critical, $lightness: 20%);
         animation: pulse-critical 2.5s infinite;
         
         .metric-number {
-          color: darken($color-critical, 15%) !important;
+          color: color.adjust($color-critical, $lightness: -15%) !important;
           font-weight: 900;
           animation: text-pulse 2.5s infinite;
         }
@@ -250,7 +250,7 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
     50% { 
-      border-color: darken($color-critical, 15%);
+      border-color: color.adjust($color-critical, $lightness: -15%);
       box-shadow: 0 4px 20px rgba($color-critical, 0.4);
     }
     100% { 
@@ -262,7 +262,7 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
   // Animación para texto crítico
   @keyframes text-pulse {
     0% { color: $color-critical; }
-    50% { color: darken($color-critical, 20%); }
+    50% { color: color.adjust($color-critical, $lightness: -20%); }
     100% { color: $color-critical; }
   }
 
@@ -322,8 +322,8 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
           color: $color-text;
           
           &.critical {
-            background: lighten($color-critical, 45%);
-            color: darken($color-critical, 15%);
+            background: color.adjust($color-critical, $lightness: 45%);
+            color: color.adjust($color-critical, $lightness: -15%);
             border-color: $color-critical;
             animation: pulse-critical 2.5s infinite;
             font-weight: 700;
@@ -340,138 +340,93 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
   // Vista Grid
   .vessels-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 1rem;
     
-    .vessel-card {
+    .vessel-card-grid {
       background: $color-card;
       border: 1px solid $color-border;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
-      border-left: 5px solid transparent;
       overflow: hidden;
+      padding: 1rem 0.8rem;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
       
       &:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-        border-color: darken($color-border, 15%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-color: color.adjust($color-border, $lightness: -10%);
       }
       
-      .vessel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem 1.5rem 1rem;
-        border-bottom: 1px solid $color-border;
-        background: $color-background;
-        
-        .vessel-name {
-          font-size: 1.3rem;
-          font-weight: 800;
-          color: $color-title;  // Negro para nombres de vessels
-        }
+      .vessel-name-grid {
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: $color-title;
+        margin-bottom: 0.4rem;
+        line-height: 1.2;
       }
       
-      .vessel-details {
-        padding: 1.25rem 1.5rem 1.5rem;
-        
-        .detail-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 1rem;
-          
-          &:last-child {
-            margin-bottom: 0;
-          }
-          
-          .detail-label {
-            font-size: 0.95rem;
-            color: $color-text-light;
-            font-weight: 600;
-          }
-          
-          .detail-value {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: $color-text;
-            
-            &.time-value {
-              font-size: 1.05rem;
-              font-weight: 800;
-            }
-          }
-        }
+      .vessel-connection {
+        font-size: 0.75rem;
+        font-weight: 600;
+        opacity: 0.8;
+        line-height: 1;
       }
       
       .vessel-indicator {
         position: absolute;
         top: 0;
         right: 0;
-        width: 8px;
+        width: 4px;
         height: 100%;
+        border-radius: 0 8px 8px 0;
       }
       
-      // Estados específicos
+
+      
+      // Estados específicos para grid
       &.vessel-critical {
-        border-left-color: $color-critical;
-        background: lighten($color-critical, 48%);
+        background: color.adjust($color-critical, $lightness: 48%);
         animation: pulse-critical 2s infinite;
-        border-color: lighten($color-critical, 20%);
+        border-color: $color-critical;
         
-        .vessel-name {
-          color: darken($color-critical, 20%) !important;
-          font-weight: 900;
-        }
-        
-        .vessel-header {
-          background: lighten($color-critical, 45%);
-          border-bottom-color: lighten($color-critical, 25%);
+        .vessel-name-grid {
+          color: color.adjust($color-critical, $lightness: -20%) !important;
         }
       }
       
       &.vessel-attention {
-        border-left-color: $color-attention;
-        background: lighten($color-attention, 48%);
+        background: color.adjust($color-attention, $lightness: 48%);
+        border-color: $color-attention;
         
-        .vessel-name {
-          color: darken($color-attention, 25%) !important;
-        }
-        
-        .vessel-header {
-          background: lighten($color-attention, 45%);
-          border-bottom-color: lighten($color-attention, 25%);
+        .vessel-name-grid {
+          color: color.adjust($color-attention, $lightness: -25%) !important;
         }
       }
       
       &.vessel-warning {
-        border-left-color: $color-warning;
-        background: lighten($color-warning, 45%);
+        background: color.adjust($color-warning, $lightness: 45%);
+        border-color: $color-warning;
         
-        .vessel-name {
-          color: darken($color-warning, 30%) !important;
-        }
-        
-        .vessel-header {
-          background: lighten($color-warning, 40%);
-          border-bottom-color: lighten($color-warning, 20%);
+        .vessel-name-grid {
+          color: color.adjust($color-warning, $lightness: -30%) !important;
         }
       }
       
       &.vessel-normal {
-        border-left-color: $color-normal;
-        background: lighten($color-normal, 50%);
+        background: color.adjust($color-normal, $lightness: 50%);
+        border-color: $color-normal;
         
-        .vessel-name {
-          color: darken($color-normal, 20%) !important;
-        }
-        
-        .vessel-header {
-          background: lighten($color-normal, 47%);
-          border-bottom-color: lighten($color-normal, 25%);
+        .vessel-name-grid {
+          color: color.adjust($color-normal, $lightness: -20%) !important;
         }
       }
     }
@@ -496,7 +451,7 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
         .p-datatable-thead > tr > th {
           background: $color-accent;
           border: none;
-          border-bottom: 1px solid darken($color-accent, 10%);
+          border-bottom: 1px solid color.adjust($color-accent, $lightness: -10%);
           font-weight: 800;
           color: white;
           font-size: 0.9rem;
@@ -507,58 +462,58 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
         
         .p-datatable-tbody > tr {
           &.row-critical {
-            background: lighten($color-critical, 48%);
+            background: color.adjust($color-critical, $lightness: 48%);
             border-left: 4px solid $color-critical;
             animation: pulse-critical 2s infinite;
             
             td {
-              color: darken($color-critical, 20%);
+              color: color.adjust($color-critical, $lightness: -20%);
               font-weight: 600;
               
               .vessel-name {
-                color: darken($color-critical, 25%);
+                color: color.adjust($color-critical, $lightness: -25%);
                 font-weight: 800;
               }
             }
           }
           
           &.row-attention {
-            background: lighten($color-attention, 48%);
+            background: color.adjust($color-attention, $lightness: 48%);
             border-left: 4px solid $color-attention;
             
             td {
-              color: darken($color-attention, 25%);
+              color: color.adjust($color-attention, $lightness: -25%);
               
               .vessel-name {
-                color: darken($color-attention, 30%);
+                color: color.adjust($color-attention, $lightness: -30%);
                 font-weight: 700;
               }
             }
           }
           
           &.row-warning {
-            background: lighten($color-warning, 45%);
+            background: color.adjust($color-warning, $lightness: 45%);
             border-left: 4px solid $color-warning;
             
             td {
-              color: darken($color-warning, 30%);
+              color: color.adjust($color-warning, $lightness: -30%);
               
               .vessel-name {
-                color: darken($color-warning, 35%);
+                color: color.adjust($color-warning, $lightness: -35%);
                 font-weight: 700;
               }
             }
           }
           
           &.row-normal {
-            background: lighten($color-normal, 50%);
+            background: color.adjust($color-normal, $lightness: 50%);
             border-left: 4px solid $color-normal;
             
             td {
-              color: darken($color-normal, 20%);
+              color: color.adjust($color-normal, $lightness: -20%);
               
               .vessel-name {
-                color: darken($color-normal, 25%);
+                color: color.adjust($color-normal, $lightness: -25%);
                 font-weight: 700;
               }
             }
@@ -663,23 +618,71 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
       }
     }
     
-    .vessel-card {
-      .vessel-header .vessel-name {
-        font-size: 1.5rem;
-      }
+    // Estilos para grid de vessels en pantallas grandes
+    .vessels-grid {
+      gap: 1.5rem;
       
-      .vessel-details .detail-row {
-        margin-bottom: 1.25rem;
+      .vessel-card-grid {
+        min-height: 90px;
+        padding: 1.2rem 1rem;
         
-        .detail-label, .detail-value {
-          font-size: 1.1rem;
+        .vessel-name-grid {
+          font-size: 1rem;
+          margin-bottom: 0.5rem;
         }
         
-        .time-value {
-          font-size: 1.3rem;
+        .vessel-connection {
+          font-size: 0.85rem;
         }
       }
     }
+  }
+}
+
+// Responsive para pantallas muy grandes (mantener 7 columnas)
+@media (min-width: 1600px) {
+  .alarmas-container .vessels-grid {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1.2rem;
+  }
+}
+
+// Responsive para pantallas medianas
+@media (max-width: 1300px) {
+  .alarmas-container .vessels-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .alarmas-container .vessels-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 850px) {
+  .alarmas-container .vessels-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.8rem;
+    
+    .vessel-card-grid {
+      min-height: 70px;
+      padding: 0.8rem 0.6rem;
+      
+      .vessel-name-grid {
+        font-size: 0.8rem;
+      }
+      
+      .vessel-connection {
+        font-size: 0.7rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 550px) {
+  .alarmas-container .vessels-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -703,7 +706,7 @@ $color-subtitle: #212529;      // Gris muy oscuro para subtítulos
   }
   
   .p-dropdown, .p-inputtext {
-    background: lighten($color-card, 5%) !important;
+    background: color.adjust($color-card, $lightness: 5%) !important;
     border: 2px solid $color-border !important;
     color: $color-text !important;
     

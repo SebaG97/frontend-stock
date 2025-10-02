@@ -10,6 +10,25 @@ import { Vessel, ResumenAlarmas, VesselDetalle, FiltroAlarmas, AlarmasResponse, 
 export class AlarmasService {
   private readonly apiUrl = `${environment.apiUrl}/alarmas`;
 
+  // Lista de vessels de prueba que se excluyen de la vista
+  private readonly vesselsExcluidos = [
+    'TEST_ADM',
+    'PIRARUCU',
+    'HERKULES XVI',
+    'HERKULES V',
+    'HERKULES XV',
+    'HERKULES IV',
+    'GRUS',
+    'CENTAURUS',
+    'PEGASUS',
+    'HYDRA',
+    'LYNX',
+    'PHOENIX',
+    'SCORPIUS',
+    'AQUARIUS',
+    'AQUILA'
+  ];
+
   constructor(private http: HttpClient) {}
 
   /**
@@ -39,30 +58,46 @@ export class AlarmasService {
     return this.http.get<AlarmasResponse>(url, { params }).pipe(
       map(response => {
         console.log('📦 Respuesta completa del backend:', response);
-        return response.alarmas || [];
+        const todosLosVessels = response.alarmas || [];
+        
+        // Filtrar vessels excluidos
+        const vesselsFiltrasdos = todosLosVessels.filter(vessel => 
+          !this.vesselsExcluidos.includes(vessel.vessel_name)
+        );
+        
+        console.log(`🔍 Vessels filtrados: ${todosLosVessels.length} → ${vesselsFiltrasdos.length} (excluidos: ${todosLosVessels.length - vesselsFiltrasdos.length})`);
+        
+        return vesselsFiltrasdos;
       })
     );
   }
 
   /**
-   * Obtiene el resumen estadístico de vessels por estado
+   * Obtiene el resumen estadístico de vessels por estado (calculado con vessels filtrados)
    */
   getResumenAlarmas(): Observable<ResumenAlarmas> {
-    const url = `${this.apiUrl}/resumen`;
-    console.log('📊 Llamando a GET /alarmas/resumen:', url);
-    
-    return this.http.get<ResumenResponse>(url).pipe(
-      map(response => {
-        console.log('📊 Respuesta resumen del backend:', response);
+    // Obtener todos los vessels ya filtrados y calcular estadísticas
+    return this.getAlarmas().pipe(
+      map(vessels => {
+        const total = vessels.length;
         
-        // Convertir respuesta del backend al formato del frontend
+        // Contar por estado usando la lógica del frontend
+        const normales = vessels.filter(v => this.getEstadoFrontend(v) === 'normal').length;
+        const advertencia = vessels.filter(v => this.getEstadoFrontend(v) === 'warning').length;  
+        const atencion = vessels.filter(v => this.getEstadoFrontend(v) === 'attention').length;
+        const criticos = vessels.filter(v => this.getEstadoFrontend(v) === 'critical').length;
+        
+        const porcentajeOperativo = total > 0 ? Math.round((normales / total) * 100) : 0;
+        
+        console.log(`📊 Resumen calculado (filtrado): Total: ${total}, Normal: ${normales}, Advertencia: ${advertencia}, Atención: ${atencion}, Críticos: ${criticos}`);
+        
         return {
-          total_vessels: response.total_vessels,
-          vessels_normales: response.conteo_por_estado.verde,
-          vessels_advertencia: response.conteo_por_estado.amarillo,
-          vessels_atencion: response.conteo_por_estado.naranja,
-          vessels_criticos: response.conteo_por_estado.rojo,
-          porcentaje_operativo: response.porcentajes.verde
+          total_vessels: total,
+          vessels_normales: normales,
+          vessels_advertencia: advertencia,
+          vessels_atencion: atencion,
+          vessels_criticos: criticos,
+          porcentaje_operativo: porcentajeOperativo
         };
       })
     );
@@ -142,6 +177,27 @@ export class AlarmasService {
     if (horas < 8) return 'warning';
     if (horas < 12) return 'attention';
     return 'critical';
+  }
+
+  /**
+   * Obtiene el estado en formato frontend de un vessel
+   */
+  getEstadoFrontend(vessel: Vessel): string {
+    return this.convertirEstadoAFrontend(vessel.estado_alarma);
+  }
+
+  /**
+   * Obtiene la lista de vessels excluidos (para referencia o debugging)
+   */
+  getVesselsExcluidos(): string[] {
+    return [...this.vesselsExcluidos]; // Retorna copia para evitar mutaciones
+  }
+
+  /**
+   * Verifica si un vessel está en la lista de exclusión
+   */
+  isVesselExcluido(vesselName: string): boolean {
+    return this.vesselsExcluidos.includes(vesselName);
   }
 
   /**
