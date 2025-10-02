@@ -74,6 +74,20 @@ export class AppMenu {
                         title: 'Gestión de horas extras de técnicos'
                     }
                 ]
+            },
+            {
+                separator: true
+            },
+            {
+                label: 'Monitoring',
+                items: [
+                    { 
+                        label: 'Alarmas de Vessels', 
+                        icon: 'pi pi-fw pi-shield', 
+                        routerLink: ['/alarmas'],
+                        title: 'Monitoring y alertas de vessels en tiempo real'
+                    }
+                ]
             }
         ];
     }

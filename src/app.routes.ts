@@ -31,6 +31,11 @@ export const appRoutes: Routes = [
             { 
                 path: 'partes-trabajo/:id', 
                 loadComponent: () => import('./app/pages/partes-trabajo/components/parte-trabajo-detalle.component').then(m => m.ParteTrabajoDetalleComponent) 
+            },
+            // Ruta para alarmas de vessels
+            { 
+                path: 'alarmas', 
+                loadComponent: () => import('./app/pages/alarmas/alarmas.component').then(m => m.AlarmasComponent) 
             }
         ]
     },

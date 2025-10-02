@@ -1,0 +1,721 @@
+@use "sass:color";
+
+// Variables para colores de estado - Tema claro profesional
+$color-normal: #28a745;        // Verde estándar
+$color-warning: #ffc107;       // Amarillo estándar
+$color-attention: #fd7e14;     // Naranja estándar
+$color-critical: #dc3545;      // Rojo estándar
+$color-background: #f8f9fa;    // Fondo gris muy claro
+$color-card: #ffffff;          // Tarjetas blancas
+$color-text: #343a40;          // Texto gris oscuro
+$color-text-light: #6c757d;   // Texto secundario gris
+$color-border: #dee2e6;        // Bordes gris claro
+
+// Colores adicionales para tema claro
+$color-header: #343a40;        // Header gris oscuro
+$color-accent: #007bff;        // Azul para elementos destacados
+$color-success-bg: rgba(40, 167, 69, 0.1);    // Fondo verde suave
+$color-warning-bg: rgba(255, 193, 7, 0.1);    // Fondo amarillo suave
+$color-attention-bg: rgba(253, 126, 20, 0.1); // Fondo naranja suave
+$color-critical-bg: rgba(220, 53, 69, 0.15);  // Fondo rojo suave
+
+// Colores para títulos (negro según solicitud)
+$color-title: #000000;         // Negro para títulos principales
+$color-subtitle: #212529;      // Gris muy oscuro para subtítulos
+
+.alarmas-container {
+  padding: 1rem;
+  background-color: $color-background;
+  min-height: 100vh;
+  font-family: 'Roboto', 'Segoe UI', sans-serif;
+
+  // Header Panel
+  .header-panel {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid $color-border;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 2rem;
+      color: $color-text;
+    }
+    
+    .header-left {
+      .page-title {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 0 0 0.5rem 0;
+        color: $color-title;  // Negro para el título principal
+        
+        .pi {
+          color: $color-accent;  // Azul para el icono
+        }
+      }
+      
+      .status-general {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        
+        .update-time {
+          font-size: 0.9rem;
+          opacity: 0.8;
+        }
+        
+        .chip-success {
+          background-color: $color-normal !important;
+          color: white !important;
+        }
+        
+        .chip-warning {
+          background-color: $color-warning !important;
+          color: #333 !important;
+        }
+      }
+    }
+    
+    .header-controls {
+      display: flex;
+      gap: 1rem;
+      
+      .view-controls, .refresh-controls {
+        display: flex;
+        gap: 0.5rem;
+      }
+    }
+  }
+
+  // Dashboard de métricas
+  .metrics-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    
+    .metric-card {
+      background: $color-card;
+      border: 1px solid $color-border;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        border-color: darken($color-border, 15%);
+      }
+      
+      .metric-content {
+        padding: 1.5rem;
+        position: relative;
+        z-index: 2;
+        
+        .metric-number {
+          font-size: 3.2rem;
+          font-weight: 900;
+          line-height: 1;
+          margin-bottom: 0.5rem;
+          color: $color-text;
+        }
+        
+        .metric-label {
+          font-size: 0.9rem;
+          font-weight: 700;
+          letter-spacing: 1px;
+          margin-bottom: 0.5rem;
+          color: $color-text-light;
+          text-transform: uppercase;
+        }
+        
+        .metric-percentage {
+          font-size: 1.2rem;
+          font-weight: 700;
+          margin-top: 0.5rem;
+          color: $color-text;
+        }
+        
+        .metric-icon {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          font-size: 2.5rem;
+          opacity: 0.3;
+          color: $color-text-light;
+        }
+      }
+      
+      .metric-progress {
+        padding: 0 1.5rem 1rem;
+        
+        ::ng-deep .progress-success .p-progressbar-value {
+          background: linear-gradient(45deg, $color-normal, color.adjust($color-normal, $lightness: 10%));
+        }
+      }
+      
+      // Colores específicos por tipo de métrica
+      &.metric-total {
+        background: linear-gradient(135deg, $color-accent 0%, lighten($color-accent, 10%) 100%);
+        border-color: $color-accent;
+        color: white;
+        
+        .metric-number, .metric-label, .metric-percentage {
+          color: white !important;
+        }
+        
+        .metric-icon {
+          color: rgba(255, 255, 255, 0.8) !important;
+        }
+      }
+      
+      &.metric-operational {
+        background: $color-success-bg;
+        border-left: 5px solid $color-normal;
+        border-top: 1px solid lighten($color-normal, 30%);
+        
+        .metric-number, .metric-percentage {
+          color: darken($color-normal, 10%) !important;
+          font-weight: 800;
+        }
+        
+        .metric-icon {
+          color: $color-normal !important;
+          opacity: 0.7;
+        }
+      }
+      
+      &.metric-warning {
+        background: $color-warning-bg;
+        border-left: 5px solid $color-warning;
+        border-top: 1px solid lighten($color-warning, 20%);
+        
+        .metric-number {
+          color: darken($color-warning, 20%) !important;
+          font-weight: 800;
+        }
+        
+        .metric-icon {
+          color: darken($color-warning, 10%) !important;
+          opacity: 0.7;
+        }
+      }
+      
+      &.metric-attention {
+        background: $color-attention-bg;
+        border-left: 5px solid $color-attention;
+        border-top: 1px solid lighten($color-attention, 20%);
+        
+        .metric-number {
+          color: darken($color-attention, 10%) !important;
+          font-weight: 800;
+        }
+        
+        .metric-icon {
+          color: $color-attention !important;
+          opacity: 0.7;
+        }
+      }
+      
+      &.metric-critical {
+        background: $color-critical-bg;
+        border-left: 5px solid $color-critical;
+        border-top: 1px solid lighten($color-critical, 20%);
+        animation: pulse-critical 2.5s infinite;
+        
+        .metric-number {
+          color: darken($color-critical, 15%) !important;
+          font-weight: 900;
+          animation: text-pulse 2.5s infinite;
+        }
+        
+        .metric-icon {
+          color: $color-critical !important;
+          opacity: 0.8;
+          animation: text-pulse 2.5s infinite;
+        }
+      }
+    }
+  }
+
+  // Animación de borde para elementos críticos - más visible
+  @keyframes pulse-critical {
+    0% { 
+      border-color: $color-critical;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    50% { 
+      border-color: darken($color-critical, 15%);
+      box-shadow: 0 4px 20px rgba($color-critical, 0.4);
+    }
+    100% { 
+      border-color: $color-critical;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  // Animación para texto crítico
+  @keyframes text-pulse {
+    0% { color: $color-critical; }
+    50% { color: darken($color-critical, 20%); }
+    100% { color: $color-critical; }
+  }
+
+  // Panel de filtros
+  .filters-panel {
+    background: $color-card;
+    border: 1px solid $color-border;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    
+    .filters-content {
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        
+        label {
+          font-weight: 600;
+          color: $color-subtitle;
+          font-size: 0.9rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        
+        .search-input {
+          min-width: 250px;
+          background: $color-card;
+          border: 1px solid $color-border;
+          color: $color-text;
+          
+          &:focus {
+            border-color: $color-accent;
+            box-shadow: 0 0 0 2px rgba($color-accent, 0.2);
+          }
+        }
+      }
+      
+      .filter-stats {
+        margin-left: auto;
+        display: flex;
+        gap: 1rem;
+        
+        .filter-stat {
+          padding: 0.75rem 1.25rem;
+          background: $color-background;
+          border: 1px solid $color-border;
+          border-radius: 8px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: $color-text;
+          
+          &.critical {
+            background: lighten($color-critical, 45%);
+            color: darken($color-critical, 15%);
+            border-color: $color-critical;
+            animation: pulse-critical 2.5s infinite;
+            font-weight: 700;
+            
+            .pi {
+              margin-right: 0.5rem;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Vista Grid
+  .vessels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+    
+    .vessel-card {
+      background: $color-card;
+      border: 1px solid $color-border;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      border-left: 5px solid transparent;
+      overflow: hidden;
+      
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        border-color: darken($color-border, 15%);
+      }
+      
+      .vessel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 1.5rem 1rem;
+        border-bottom: 1px solid $color-border;
+        background: $color-background;
+        
+        .vessel-name {
+          font-size: 1.3rem;
+          font-weight: 800;
+          color: $color-title;  // Negro para nombres de vessels
+        }
+      }
+      
+      .vessel-details {
+        padding: 1.25rem 1.5rem 1.5rem;
+        
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1rem;
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+          
+          .detail-label {
+            font-size: 0.95rem;
+            color: $color-text-light;
+            font-weight: 600;
+          }
+          
+          .detail-value {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: $color-text;
+            
+            &.time-value {
+              font-size: 1.05rem;
+              font-weight: 800;
+            }
+          }
+        }
+      }
+      
+      .vessel-indicator {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 8px;
+        height: 100%;
+      }
+      
+      // Estados específicos
+      &.vessel-critical {
+        border-left-color: $color-critical;
+        background: lighten($color-critical, 48%);
+        animation: pulse-critical 2s infinite;
+        border-color: lighten($color-critical, 20%);
+        
+        .vessel-name {
+          color: darken($color-critical, 20%) !important;
+          font-weight: 900;
+        }
+        
+        .vessel-header {
+          background: lighten($color-critical, 45%);
+          border-bottom-color: lighten($color-critical, 25%);
+        }
+      }
+      
+      &.vessel-attention {
+        border-left-color: $color-attention;
+        background: lighten($color-attention, 48%);
+        
+        .vessel-name {
+          color: darken($color-attention, 25%) !important;
+        }
+        
+        .vessel-header {
+          background: lighten($color-attention, 45%);
+          border-bottom-color: lighten($color-attention, 25%);
+        }
+      }
+      
+      &.vessel-warning {
+        border-left-color: $color-warning;
+        background: lighten($color-warning, 45%);
+        
+        .vessel-name {
+          color: darken($color-warning, 30%) !important;
+        }
+        
+        .vessel-header {
+          background: lighten($color-warning, 40%);
+          border-bottom-color: lighten($color-warning, 20%);
+        }
+      }
+      
+      &.vessel-normal {
+        border-left-color: $color-normal;
+        background: lighten($color-normal, 50%);
+        
+        .vessel-name {
+          color: darken($color-normal, 20%) !important;
+        }
+        
+        .vessel-header {
+          background: lighten($color-normal, 47%);
+          border-bottom-color: lighten($color-normal, 25%);
+        }
+      }
+    }
+  }
+
+  // Vista Tabla
+  .vessels-table {
+    background: $color-card;
+    border: 1px solid $color-border;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    
+    ::ng-deep {
+      .p-datatable {
+        .p-datatable-header {
+          background: $color-card;
+          border: none;
+          color: $color-text;
+        }
+        
+        .p-datatable-thead > tr > th {
+          background: $color-accent;
+          border: none;
+          border-bottom: 1px solid darken($color-accent, 10%);
+          font-weight: 800;
+          color: white;
+          font-size: 0.9rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          padding: 1rem;
+        }
+        
+        .p-datatable-tbody > tr {
+          &.row-critical {
+            background: lighten($color-critical, 48%);
+            border-left: 4px solid $color-critical;
+            animation: pulse-critical 2s infinite;
+            
+            td {
+              color: darken($color-critical, 20%);
+              font-weight: 600;
+              
+              .vessel-name {
+                color: darken($color-critical, 25%);
+                font-weight: 800;
+              }
+            }
+          }
+          
+          &.row-attention {
+            background: lighten($color-attention, 48%);
+            border-left: 4px solid $color-attention;
+            
+            td {
+              color: darken($color-attention, 25%);
+              
+              .vessel-name {
+                color: darken($color-attention, 30%);
+                font-weight: 700;
+              }
+            }
+          }
+          
+          &.row-warning {
+            background: lighten($color-warning, 45%);
+            border-left: 4px solid $color-warning;
+            
+            td {
+              color: darken($color-warning, 30%);
+              
+              .vessel-name {
+                color: darken($color-warning, 35%);
+                font-weight: 700;
+              }
+            }
+          }
+          
+          &.row-normal {
+            background: lighten($color-normal, 50%);
+            border-left: 4px solid $color-normal;
+            
+            td {
+              color: darken($color-normal, 20%);
+              
+              .vessel-name {
+                color: darken($color-normal, 25%);
+                font-weight: 700;
+              }
+            }
+          }
+          
+          td {
+            border: none;
+            border-bottom: 1px solid $color-border;
+            font-size: 0.95rem;
+            padding: 1rem;
+            color: $color-text;
+            
+            .time-indicator {
+              font-size: 1.1rem;
+              font-weight: 800;
+            }
+            
+            .no-data {
+              color: $color-text-light;
+              font-style: italic;
+              opacity: 0.7;
+            }
+          }
+        }
+      }
+    }
+    
+    .empty-state {
+      padding: 3rem;
+      text-align: center;
+      color: $color-text-light;
+      
+      p {
+        margin-top: 1rem;
+        font-size: 1.1rem;
+      }
+    }
+  }
+
+  // Estados de carga
+  .loading-content {
+    .grid-skeleton {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .table-skeleton {
+      background: $color-card;
+      border-radius: 12px;
+      padding: 1rem;
+    }
+  }
+}
+
+// Responsive para monitores grandes
+@media (min-width: 1200px) {
+  .alarmas-container {
+    .vessels-grid {
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+    
+    .metrics-dashboard {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+}
+
+// Responsive para pantallas extra grandes (monitores de monitoring)
+@media (min-width: 1600px) {
+  .alarmas-container {
+    padding: 2rem 3rem;
+    
+    .header-panel .header-content {
+      padding: 2.5rem 3rem;
+      
+      .page-title {
+        font-size: 2.8rem;
+      }
+    }
+    
+    .vessels-grid {
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 2.5rem;
+    }
+    
+    .metrics-dashboard {
+      gap: 2.5rem;
+      
+      .metric-card .metric-content {
+        .metric-number {
+          font-size: 3.8rem;
+        }
+        
+        .metric-label {
+          font-size: 1rem;
+        }
+        
+        .metric-icon {
+          font-size: 3rem;
+        }
+      }
+    }
+    
+    .vessel-card {
+      .vessel-header .vessel-name {
+        font-size: 1.5rem;
+      }
+      
+      .vessel-details .detail-row {
+        margin-bottom: 1.25rem;
+        
+        .detail-label, .detail-value {
+          font-size: 1.1rem;
+        }
+        
+        .time-value {
+          font-size: 1.3rem;
+        }
+      }
+    }
+  }
+}
+
+// Estilos adicionales para elementos PrimeNG
+::ng-deep {
+  .p-button {
+    background: $color-accent !important;
+    border-color: $color-accent !important;
+    color: white !important;
+    
+    &.p-button-outlined {
+      background: transparent !important;
+      color: $color-accent !important;
+      border-color: $color-accent !important;
+    }
+  }
+  
+  .p-chip {
+    color: white !important;
+    font-weight: 700 !important;
+  }
+  
+  .p-dropdown, .p-inputtext {
+    background: lighten($color-card, 5%) !important;
+    border: 2px solid $color-border !important;
+    color: $color-text !important;
+    
+    &:focus, &:enabled:focus {
+      border-color: $color-accent !important;
+      box-shadow: 0 0 0 3px rgba($color-accent, 0.2) !important;
+    }
+  }
+  
+  .p-tag {
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+}
