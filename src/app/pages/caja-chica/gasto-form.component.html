@@ -1,0 +1,467 @@
+<!-- 💸 Formulario de Gasto - Caja Chica -->
+<div class="gasto-form">
+
+  <!-- 🧰 Toolbar Principal -->
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="left">
+      <div class="flex align-items-center gap-3">
+        <i class="pi pi-receipt text-2xl text-primary"></i>
+        <div>
+          <h2 class="m-0 text-xl font-bold">
+            {{ modoEdicion ? 'Editar Gasto' : 'Nuevo Gasto' }}
+          </h2>
+          <p class="m-0 text-sm text-500">
+            {{ modoEdicion ? 'Modificar información del gasto' : 'Registrar un nuevo gasto de caja chica' }}
+          </p>
+        </div>
+      </div>
+    </ng-template>
+    
+    <ng-template pTemplate="right">
+      <div class="flex gap-2">
+        <p-button 
+          label="Cancelar"
+          icon="pi pi-times"
+          severity="secondary"
+          [outlined]="true"
+          (click)="cancelar()">
+        </p-button>
+        
+        <p-button 
+          label="{{ modoEdicion ? 'Actualizar' : 'Guardar' }}"
+          icon="pi pi-check"
+          severity="success"
+          [loading]="guardando"
+          (click)="guardarGasto()">
+        </p-button>
+      </div>
+    </ng-template>
+  </p-toolbar>
+
+  <!-- 📋 Formulario -->
+  <form [formGroup]="gastoForm" *ngIf="!loading">
+    
+    <!-- 📊 Información Básica -->
+    <p-card styleClass="mb-4">
+      <ng-template pTemplate="header">
+        <div class="flex align-items-center p-3">
+          <i class="pi pi-info-circle mr-2 text-primary"></i>
+          <span class="font-semibold">Información del Gasto</span>
+        </div>
+      </ng-template>
+      
+      <div class="grid">
+        
+        <!-- 🏢 Proveedor -->
+        <div class="col-12 md:col-6">
+          <label class="block text-sm font-medium mb-2">
+            Proveedor <span class="text-red-500">*</span>
+          </label>
+          
+          <div class="flex gap-2">
+            <p-dropdown 
+              formControlName="proveedor_id"
+              [options]="proveedores"
+              optionLabel="nombre"
+              optionValue="id"
+              placeholder="Seleccionar proveedor"
+              [filter]="true"
+              filterBy="nombre,ruc"
+              [showClear]="true"
+              styleClass="flex-1"
+              [class.ng-invalid]="esCampoInvalido('proveedor_id')">
+              
+              <ng-template pTemplate="selectedItem" let-option>
+                <div *ngIf="option">
+                  <div class="font-semibold">{{ obtenerNombreProveedor(option) }}</div>
+                </div>
+              </ng-template>
+              
+              <ng-template pTemplate="item" let-option>
+                <div>
+                  <div class="font-semibold">{{ option.nombre }}</div>
+                  <div class="text-sm text-blue-600 font-medium" *ngIf="option.ruc">
+                    RUC: {{ option.ruc }}
+                  </div>
+                  <div class="text-xs text-500" *ngIf="option.email">
+                    📧 {{ option.email }}
+                  </div>
+                </div>
+              </ng-template>
+            </p-dropdown>
+            
+            <p-button 
+              icon="pi pi-plus"
+              severity="info"
+              [outlined]="true"
+              (click)="abrirModalNuevoProveedor()"
+              pTooltip="Crear nuevo proveedor">
+            </p-button>
+          </div>
+          
+          <small class="p-error block mt-1" *ngIf="esCampoInvalido('proveedor_id')">
+            {{ obtenerMensajeError('proveedor_id') }}
+          </small>
+        </div>
+
+        <!-- 🧾 Número de Factura -->
+        <div class="col-12 md:col-6">
+          <label class="block text-sm font-medium mb-2">
+            Número de Factura <span class="text-red-500">*</span>
+          </label>
+          
+          <input 
+            type="text" 
+            pInputText
+            formControlName="numero_factura"
+            placeholder="001-001-0000123"
+            class="w-full"
+            [class.ng-invalid]="esCampoInvalido('numero_factura')">
+            
+          <small class="p-error block mt-1" *ngIf="esCampoInvalido('numero_factura')">
+            {{ obtenerMensajeError('numero_factura') }}
+          </small>
+        </div>
+
+        <!-- 📅 Fecha de Factura -->
+        <div class="col-12 md:col-6">
+          <label class="block text-sm font-medium mb-2">
+            Fecha de Factura <span class="text-red-500">*</span>
+          </label>
+          
+          <p-calendar 
+            formControlName="fecha_factura"
+            dateFormat="dd/mm/yy"
+            [showIcon]="true"
+            placeholder="Seleccionar fecha"
+            class="w-full"
+            [class.ng-invalid]="esCampoInvalido('fecha_factura')">
+          </p-calendar>
+          
+          <small class="p-error block mt-1" *ngIf="esCampoInvalido('fecha_factura')">
+            {{ obtenerMensajeError('fecha_factura') }}
+          </small>
+        </div>
+
+        <!-- 📝 Descripción -->
+        <div class="col-12">
+          <label class="block text-sm font-medium mb-2">
+            Descripción <span class="text-red-500">*</span>
+          </label>
+          
+          <textarea 
+            rows="3"
+            class="p-inputtextarea w-full"
+            formControlName="descripcion"
+            placeholder="Descripción detallada del gasto..."
+            [class.ng-invalid]="esCampoInvalido('descripcion')">
+          </textarea>
+          
+          <small class="p-error block mt-1" *ngIf="esCampoInvalido('descripcion')">
+            {{ obtenerMensajeError('descripcion') }}
+          </small>
+        </div>
+
+      </div>
+    </p-card>
+
+    <!-- 📦 Productos -->
+    <p-card styleClass="mb-4">
+      <ng-template pTemplate="header">
+        <div class="flex justify-content-between align-items-center p-3">
+          <div class="flex align-items-center">
+            <i class="pi pi-box mr-2 text-primary"></i>
+            <span class="font-semibold">Productos</span>
+          </div>
+          
+          <p-button 
+            label="Agregar Producto"
+            icon="pi pi-plus"
+            size="small"
+            (click)="agregarProducto()">
+          </p-button>
+        </div>
+      </ng-template>
+      
+      <!-- 📊 Tabla de Productos -->
+      <p-table 
+        [value]="productosArray.controls" 
+        responsiveLayout="scroll"
+        styleClass="p-datatable-sm">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 30%">Producto</th>
+            <th style="width: 20%">Depósito</th>
+            <th style="width: 15%">Cantidad</th>
+            <th style="width: 15%">Precio Unit.</th>
+            <th style="width: 15%">Subtotal</th>
+            <th style="width: 5%" class="text-center">Acción</th>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="body" let-productoForm let-i="rowIndex">
+          <tr [formGroup]="productoForm">
+            
+            <!-- 📦 Producto -->
+            <td>
+              <p-dropdown 
+                formControlName="producto_id"
+                [options]="productos"
+                optionLabel="nombre"
+                optionValue="id"
+                placeholder="Seleccionar producto"
+                [filter]="true"
+                filterBy="nombre,codigo"
+                [showClear]="true"
+                class="w-full"
+                (onChange)="onProductoChange(i, 'producto_id')"
+                [class.ng-invalid]="esProductoCampoInvalido(i, 'producto_id')">
+                
+                <ng-template pTemplate="selectedItem" let-option>
+                  <div *ngIf="option">
+                    {{ obtenerNombreProducto(option) }}
+                  </div>
+                </ng-template>
+                
+                <ng-template pTemplate="item" let-option>
+                  <div>
+                    <div class="font-semibold">{{ option.nombre }}</div>
+                    <div class="text-sm text-500" *ngIf="option.codigo">
+                      Código: {{ option.codigo }}
+                    </div>
+                    <div class="text-sm text-green-600" *ngIf="option.precio">
+                      Precio: {{ formatearMoneda(option.precio) }}
+                    </div>
+                  </div>
+                </ng-template>
+              </p-dropdown>
+            </td>
+            
+            <!-- 🏪 Depósito -->
+            <td>
+              <p-dropdown 
+                formControlName="deposito_id"
+                [options]="depositos"
+                optionLabel="nombre"
+                optionValue="id"
+                placeholder="Depósito"
+                [showClear]="true"
+                class="w-full"
+                [class.ng-invalid]="esProductoCampoInvalido(i, 'deposito_id')">
+              </p-dropdown>
+            </td>
+            
+            <!-- 🔢 Cantidad -->
+            <td>
+              <p-inputNumber 
+                formControlName="cantidad"
+                [min]="0.01"
+                [maxFractionDigits]="2"
+                placeholder="0.00"
+                class="w-full"
+                (onInput)="onProductoChange(i, 'cantidad')"
+                [class.ng-invalid]="esProductoCampoInvalido(i, 'cantidad')">
+              </p-inputNumber>
+            </td>
+            
+            <!-- 💰 Precio Unitario -->
+            <td>
+              <p-inputNumber 
+                formControlName="precio_unitario"
+                mode="currency"
+                currency="UYU"
+                locale="es-UY"
+                [min]="0.01"
+                placeholder="$0.00"
+                class="w-full"
+                (onInput)="onProductoChange(i, 'precio_unitario')"
+                [class.ng-invalid]="esProductoCampoInvalido(i, 'precio_unitario')">
+              </p-inputNumber>
+            </td>
+            
+            <!-- 💵 Subtotal -->
+            <td>
+              <p-tag 
+                [value]="formatearMoneda(calcularSubtotal(i))"
+                severity="info">
+              </p-tag>
+            </td>
+            
+            <!-- 🗑️ Eliminar -->
+            <td class="text-center">
+              <p-button 
+                icon="pi pi-trash"
+                severity="danger"
+                [text]="true"
+                [rounded]="true"
+                size="small"
+                (click)="eliminarProducto(i)"
+                [disabled]="productosArray.length <= 1"
+                pTooltip="Eliminar producto">
+              </p-button>
+            </td>
+          </tr>
+        </ng-template>
+        
+        <!-- 📭 Sin productos -->
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center p-4">
+              <div class="text-500">
+                <i class="pi pi-box text-3xl mb-3"></i>
+                <div>No hay productos agregados</div>
+                <p-button 
+                  label="Agregar primer producto"
+                  icon="pi pi-plus"
+                  class="mt-3"
+                  (click)="agregarProducto()">
+                </p-button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      
+      <!-- 💰 Total -->
+      <p-divider></p-divider>
+      
+      <div class="flex justify-content-end">
+        <div class="text-right">
+          <div class="text-lg font-semibold mb-2">
+            Total del Gasto:
+          </div>
+          <div class="text-2xl font-bold text-primary">
+            {{ formatearMoneda(totalGasto) }}
+          </div>
+        </div>
+      </div>
+    </p-card>
+
+  </form>
+
+  <!-- 🔄 Loading Estado -->
+  <div *ngIf="loading" class="text-center p-4">
+    <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+    <div class="mt-3">Cargando formulario...</div>
+  </div>
+
+</div>
+
+<!-- 🏢 Modal Nuevo Proveedor -->
+<p-dialog 
+  [(visible)]="mostrarModalProveedor"
+  header="Crear Nuevo Proveedor"
+  [modal]="true"
+  [style]="{ width: '500px' }"
+  [closable]="true"
+  [draggable]="false">
+  
+  <form [formGroup]="nuevoProveedorForm" *ngIf="nuevoProveedorForm">
+    <div class="grid">
+      
+      <!-- Nombre -->
+      <div class="col-12">
+        <label class="block text-sm font-medium mb-2">
+          Nombre <span class="text-red-500">*</span>
+        </label>
+        <input 
+          type="text" 
+          pInputText
+          formControlName="nombre"
+          placeholder="Nombre del proveedor"
+          class="w-full"
+          [class.ng-invalid]="esProveedorCampoInvalido('nombre')">
+        <small class="p-error block mt-1" *ngIf="esProveedorCampoInvalido('nombre')">
+          {{ obtenerMensajeErrorProveedor('nombre') }}
+        </small>
+      </div>
+
+      <!-- RUC -->
+      <div class="col-12 md:col-6">
+        <label class="block text-sm font-medium mb-2">
+          RUC <span class="text-red-500">*</span>
+        </label>
+        <input 
+          type="text" 
+          pInputText
+          formControlName="ruc"
+          placeholder="4264123-3 o 12345678-9"
+          class="w-full"
+          maxlength="10"
+          [class.ng-invalid]="esProveedorCampoInvalido('ruc')"
+          (input)="formatearRUCProveedor($event)">
+        <small class="p-error block mt-1" *ngIf="esProveedorCampoInvalido('ruc')">
+          {{ obtenerMensajeErrorProveedor('ruc') }}
+        </small>
+      </div>
+
+      <!-- Teléfono -->
+      <div class="col-12 md:col-6">
+        <label class="block text-sm font-medium mb-2">Teléfono</label>
+        <input 
+          type="text" 
+          pInputText
+          formControlName="telefono"
+          placeholder="099 123 456"
+          class="w-full">
+      </div>
+
+      <!-- Email -->
+      <div class="col-12">
+        <label class="block text-sm font-medium mb-2">Email</label>
+        <input 
+          type="email" 
+          pInputText
+          formControlName="email"
+          placeholder="proveedor@email.com"
+          class="w-full"
+          [class.ng-invalid]="esProveedorCampoInvalido('email')">
+        <small class="p-error block mt-1" *ngIf="esProveedorCampoInvalido('email')">
+          {{ obtenerMensajeErrorProveedor('email') }}
+        </small>
+      </div>
+
+      <!-- Dirección -->
+      <div class="col-12">
+        <label class="block text-sm font-medium mb-2">Dirección</label>
+        <textarea 
+          rows="2"
+          class="p-inputtextarea w-full"
+          formControlName="direccion"
+          placeholder="Dirección completa">
+        </textarea>
+      </div>
+
+    </div>
+  </form>
+  
+  <ng-template pTemplate="footer">
+    <div class="flex gap-2">
+      <p-button 
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        (click)="cerrarModalProveedor()">
+      </p-button>
+      
+      <p-button 
+        label="Crear Proveedor"
+        icon="pi pi-check"
+        severity="success"
+        (click)="crearNuevoProveedor()">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- 🍞 Toast Messages -->
+<p-toast position="top-right"></p-toast>
+
+<!-- ❓ Confirmation Dialog -->
+<p-confirmDialog 
+  [style]="{ width: '450px' }"
+  [baseZIndex]="10000"
+  rejectButtonStyleClass="p-button-text">
+</p-confirmDialog>

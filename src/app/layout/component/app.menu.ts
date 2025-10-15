@@ -79,6 +79,26 @@ export class AppMenu {
                 separator: true
             },
             {
+                label: 'Finanzas',
+                items: [
+                    { 
+                        label: 'Caja Chica', 
+                        icon: 'pi pi-fw pi-wallet', 
+                        routerLink: ['/caja-chica'],
+                        title: 'Gestión de gastos de caja chica'
+                    },
+                    {
+                        label: 'Gastos',
+                        icon: 'pi pi-fw pi-receipt',
+                        routerLink: ['/caja-chica/gastos'],
+                        title: 'Lista y gestión de gastos'
+                    }
+                ]
+            },
+            {
+                separator: true
+            },
+            {
                 label: 'Monitoring',
                 items: [
                     { 

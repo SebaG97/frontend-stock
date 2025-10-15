@@ -1,0 +1,419 @@
+<!-- 💰 Dashboard Principal - Caja Chica -->
+<div class="caja-chica-dashboard">
+  <div class="grid">
+    
+    <!-- 📊 Cards de Resumen -->
+    <div class="col-12">
+      <div class="grid" *ngIf="!loading && resumen">
+        
+        <!-- 💵 Saldo Actual -->
+        <div class="col-12 md:col-3">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="card-header">
+                <i class="pi pi-wallet text-blue-500"></i>
+                <span class="ml-2 font-semibold text-blue-500">Saldo Actual</span>
+              </div>
+            </ng-template>
+            
+            <div class="text-center">
+              <div class="text-3xl font-bold text-blue-600 mb-2">
+                {{ formatearMoneda(resumen.caja_chica.saldo_actual) }}
+              </div>
+              
+              <p-progressBar 
+                [value]="100 - porcentajeGastado" 
+                [style]="{ height: '8px' }"
+                [color]="obtenerColorProgressBar()">
+              </p-progressBar>
+              
+              <div class="text-sm text-500 mt-2">
+                {{ (100 - porcentajeGastado).toFixed(1) }}% disponible
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- 💸 Gastos del Mes -->
+        <div class="col-12 md:col-3">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="card-header">
+                <i class="pi pi-shopping-cart text-orange-500"></i>
+                <span class="ml-2 font-semibold text-orange-500">Gastos del Mes</span>
+              </div>
+            </ng-template>
+            
+            <div class="text-center">
+              <div class="text-3xl font-bold text-orange-600 mb-2">
+                {{ formatearMoneda(resumen.gastos_mes_actual) }}
+              </div>
+              
+              <div class="text-sm text-500">
+                <i class="pi pi-chart-line mr-1"></i>
+                Promedio: {{ formatearMoneda(resumen.estadisticas.promedio_mensual) }}
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- 📈 Total Gastado -->
+        <div class="col-12 md:col-3">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="card-header">
+                <i class="pi pi-chart-pie text-red-500"></i>
+                <span class="ml-2 font-semibold text-red-500">Total Gastado</span>
+              </div>
+            </ng-template>
+            
+            <div class="text-center">
+              <div class="text-3xl font-bold text-red-600 mb-2">
+                {{ formatearMoneda(resumen.gastos_totales) }}
+              </div>
+              
+              <div class="text-sm text-500">
+                <i class="pi pi-percentage mr-1"></i>
+                {{ porcentajeGastado.toFixed(1) }}% del presupuesto
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- 🏢 Estadísticas -->
+        <div class="col-12 md:col-3">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="card-header">
+                <i class="pi pi-chart-bar text-green-500"></i>
+                <span class="ml-2 font-semibold text-green-500">Estadísticas</span>
+              </div>
+            </ng-template>
+            
+            <div class="text-center">
+              <div class="mb-3">
+                <div class="text-xl font-bold text-green-600">
+                  {{ resumen.estadisticas.total_gastos }}
+                </div>
+                <div class="text-sm text-500">Total gastos</div>
+              </div>
+              
+              <div>
+                <div class="text-lg font-semibold text-500">
+                  {{ resumen.estadisticas.cantidad_proveedores }}
+                </div>
+                <div class="text-sm text-500">Proveedores</div>
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+      </div>
+      
+      <!-- 🔄 Loading Estado -->
+      <div *ngIf="loading" class="grid">
+        <div class="col-12 md:col-3" *ngFor="let item of [1,2,3,4]">
+          <p-card>
+            <div class="text-center">
+              <div class="animate-pulse">
+                <div class="h-8 bg-gray-300 rounded mb-4"></div>
+                <div class="h-4 bg-gray-200 rounded mb-2"></div>
+                <div class="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🚀 Acciones Rápidas -->
+    <div class="col-12 lg:col-4">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <i class="pi pi-bolt text-purple-500"></i>
+            <span class="ml-2 font-semibold">Acciones Rápidas</span>
+          </div>
+        </ng-template>
+        
+        <div class="flex flex-column gap-3">
+          <p-button 
+            label="Configurar Saldo" 
+            icon="pi pi-wallet"
+            class="w-full"
+            severity="warn"
+            (click)="abrirModalSaldo()">
+          </p-button>
+          
+          <p-button 
+            label="Nuevo Gasto" 
+            icon="pi pi-plus"
+            class="w-full"
+            severity="success"
+            (click)="irANuevoGasto()">
+          </p-button>
+          
+          <p-button 
+            label="Ver Todos los Gastos" 
+            icon="pi pi-list"
+            class="w-full"
+            severity="info"
+            (click)="irAGastos()">
+          </p-button>
+          
+          <p-button 
+            label="Gestionar Proveedores" 
+            icon="pi pi-users"
+            class="w-full"
+            severity="secondary"
+            (click)="irAProveedores()">
+          </p-button>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- 📋 Últimos Gastos -->
+    <div class="col-12 lg:col-8">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <i class="pi pi-clock text-blue-500"></i>
+            <span class="ml-2 font-semibold">Últimos Gastos</span>
+            <p-button 
+              icon="pi pi-refresh" 
+              class="ml-auto"
+              severity="secondary"
+              [text]="true"
+              [rounded]="true"
+              (click)="refrescarDatos()"
+              pTooltip="Actualizar datos">
+            </p-button>
+          </div>
+        </ng-template>
+        
+        <!-- 📊 Tabla de Últimos Gastos -->
+        <p-table 
+          [value]="ultimosGastos" 
+          [loading]="loadingGastos"
+          [paginator]="false"
+          responsiveLayout="scroll"
+          styleClass="p-datatable-sm">
+          
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Factura</th>
+              <th>Proveedor</th>
+              <th>Fecha</th>
+              <th>Monto</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="body" let-gasto>
+            <tr>
+              <td>
+                <span class="font-mono text-sm">
+                  {{ gasto.numero_factura }}
+                </span>
+              </td>
+              
+              <td>
+                <div>
+                  <div class="font-semibold">{{ gasto.proveedor.nombre }}</div>
+                  <div class="text-sm text-500" *ngIf="gasto.proveedor.ruc">
+                    RUC: {{ gasto.proveedor.ruc }}
+                  </div>
+                </div>
+              </td>
+              
+              <td>
+                <div>
+                  <div>{{ formatearFecha(gasto.fecha_factura) }}</div>
+                  <div class="text-sm text-500">
+                    {{ gasto.cantidad_productos }} productos
+                  </div>
+                </div>
+              </td>
+              
+              <td>
+                <p-tag 
+                  [value]="formatearMoneda(gasto.monto_total)"
+                  severity="success">
+                </p-tag>
+              </td>
+              
+              <td class="text-center">
+                <p-button 
+                  icon="pi pi-eye" 
+                  size="small"
+                  severity="info"
+                  [text]="true"
+                  [rounded]="true"
+                  (click)="verDetalleGasto(gasto.id)"
+                  pTooltip="Ver detalle">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+          
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="5" class="text-center p-4">
+                <div class="text-500">
+                  <i class="pi pi-info-circle text-3xl mb-3"></i>
+                  <div>No hay gastos registrados</div>
+                  <p-button 
+                    label="Crear primer gasto"
+                    icon="pi pi-plus"
+                    class="mt-3"
+                    (click)="irANuevoGasto()">
+                  </p-button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          
+        </p-table>
+      </p-card>
+    </div>
+
+  </div>
+</div>
+
+<!-- 💰 Modal Configurar Saldo de Caja Chica -->
+<p-dialog 
+  [(visible)]="mostrarModalSaldo"
+  header="Configurar Saldo de Caja Chica"
+  [modal]="true"
+  [style]="{ width: '500px' }"
+  [closable]="true"
+  [draggable]="false">
+  
+  <div class="grid">
+    
+    <!-- Información Actual -->
+    <div class="col-12" *ngIf="resumen">
+      <p-card styleClass="mb-4 bg-blue-50">
+        <div class="text-center">
+          <div class="text-sm text-500 mb-2">Saldo Actual</div>
+          <div class="text-2xl font-bold text-blue-600">
+            {{ formatearMoneda(resumen.caja_chica.saldo_actual) }}
+          </div>
+        </div>
+      </p-card>
+    </div>
+    
+    <!-- Tipo de Operación -->
+    <div class="col-12">
+      <label class="block text-sm font-medium mb-2">
+        Tipo de Operación <span class="text-red-500">*</span>
+      </label>
+      
+      <div class="flex gap-4">
+        <div class="flex align-items-center">
+          <p-radioButton 
+            inputId="incrementar" 
+            name="tipoOperacion" 
+            value="incrementar" 
+            [(ngModel)]="tipoOperacionSaldo">
+          </p-radioButton>
+          <label for="incrementar" class="ml-2">
+            <i class="pi pi-plus text-green-500 mr-1"></i>
+            Agregar Dinero
+          </label>
+        </div>
+        
+        <div class="flex align-items-center">
+          <p-radioButton 
+            inputId="decrementar" 
+            name="tipoOperacion" 
+            value="decrementar" 
+            [(ngModel)]="tipoOperacionSaldo">
+          </p-radioButton>
+          <label for="decrementar" class="ml-2">
+            <i class="pi pi-minus text-red-500 mr-1"></i>
+            Retirar Dinero
+          </label>
+        </div>
+        
+        <div class="flex align-items-center">
+          <p-radioButton 
+            inputId="establecer" 
+            name="tipoOperacion" 
+            value="establecer" 
+            [(ngModel)]="tipoOperacionSaldo">
+          </p-radioButton>
+          <label for="establecer" class="ml-2">
+            <i class="pi pi-pencil text-blue-500 mr-1"></i>
+            Establecer Monto
+          </label>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Monto -->
+    <div class="col-12">
+      <label class="block text-sm font-medium mb-2">
+        {{ obtenerLabelMonto() }} <span class="text-red-500">*</span>
+      </label>
+      
+      <div class="p-inputgroup">
+        <span class="p-inputgroup-addon">Gs.</span>
+        <input 
+          type="number" 
+          pInputText
+          [(ngModel)]="montoSaldo"
+          placeholder="0"
+          class="w-full text-right"
+          min="0"
+          step="1000">
+      </div>
+      
+      <div class="mt-3" *ngIf="tipoOperacionSaldo && montoSaldo && resumen">
+        <div class="text-sm text-500">Nuevo saldo será:</div>
+        <div class="text-xl font-bold" [ngClass]="obtenerColorNuevoSaldo()">
+          {{ formatearMoneda(calcularNuevoSaldo()) }}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Motivo/Descripción -->
+    <div class="col-12">
+      <label class="block text-sm font-medium mb-2">
+        Motivo <span class="text-red-500">*</span>
+      </label>
+      
+      <textarea 
+        rows="3"
+        class="p-inputtextarea w-full"
+        [(ngModel)]="motivoSaldo"
+        placeholder="Describe el motivo del ajuste de saldo..."
+        style="resize: none;">
+      </textarea>
+    </div>
+
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <div class="flex gap-2">
+      <p-button 
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        (click)="cerrarModalSaldo()">
+      </p-button>
+      
+      <p-button 
+        [label]="obtenerLabelBotonGuardar()"
+        icon="pi pi-check"
+        severity="success"
+        [disabled]="!tipoOperacionSaldo || !montoSaldo || montoSaldo <= 0 || !motivoSaldo"
+        (click)="guardarAjusteSaldo()">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- 🍞 Toast Messages -->
+<p-toast position="top-right"></p-toast>

@@ -6,10 +6,18 @@ import { environment } from '../../../environments/environment';
 export interface Proveedor {
   id: number;
   nombre: string;
+  ruc?: string;
+  direccion?: string;
+  telefono?: string;
+  email?: string;
 }
 
 export interface ProveedorCreate {
   nombre: string;
+  ruc?: string;
+  direccion?: string;
+  telefono?: string;
+  email?: string;
 }
 
 @Injectable({ providedIn: 'root' })

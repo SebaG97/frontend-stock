@@ -1,0 +1,434 @@
+/* 💸 Estilos para Formulario de Gastos */
+
+.gasto-form {
+  padding: 1rem;
+
+  /* 🧰 Toolbar Principal */
+  .p-toolbar {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    h2 {
+      color: #1e293b;
+    }
+  }
+
+  /* 🎨 Cards */
+  .p-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+
+    .p-card-header {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0;
+    }
+
+    .p-card-body {
+      padding: 1.5rem;
+    }
+  }
+
+  /* 📝 Campos de formulario */
+  .p-inputtext,
+  .p-dropdown,
+  .p-calendar,
+  .p-inputnumber input,
+  .p-inputtextarea {
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    transition: all 0.2s ease;
+    padding: 0.75rem;
+
+    &:focus,
+    &:focus-within {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      outline: none;
+    }
+
+    &.ng-invalid.ng-touched,
+    &.ng-invalid.ng-dirty {
+      border-color: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    }
+  }
+
+  /* 📊 Labels y texto de ayuda */
+  label {
+    color: #374151;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .p-error {
+    color: #ef4444;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .text-red-500 {
+    color: #ef4444;
+  }
+
+  /* 🔍 Dropdowns */
+  .p-dropdown {
+    &.p-dropdown-clearable .p-dropdown-label {
+      padding-right: 3rem;
+    }
+
+    .p-dropdown-trigger {
+      border-left: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+
+    .p-dropdown-clear-icon {
+      color: #6b7280;
+      
+      &:hover {
+        color: #ef4444;
+      }
+    }
+  }
+
+  .p-dropdown-panel {
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+
+    .p-dropdown-items {
+      padding: 0.5rem 0;
+
+      .p-dropdown-item {
+        padding: 0.75rem 1rem;
+        transition: background-color 0.2s ease;
+        border-radius: 4px;
+        margin: 0 0.5rem;
+
+        &:hover {
+          background: #f1f5f9;
+        }
+
+        &.p-highlight {
+          background: #3b82f6;
+          color: white;
+        }
+      }
+    }
+  }
+
+  /* 📅 Calendar */
+  .p-calendar {
+    .p-datepicker {
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .p-datepicker-header {
+      background: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .p-datepicker-calendar td.p-datepicker-today > span {
+      background: #3b82f6;
+      color: white;
+    }
+  }
+
+  /* 📊 Tabla de Productos */
+  .p-datatable {
+    .p-datatable-thead > tr > th {
+      background: #f1f5f9;
+      color: #475569;
+      font-weight: 600;
+      border: 1px solid #e2e8f0;
+      padding: 0.875rem 0.5rem;
+      white-space: nowrap;
+      font-size: 0.875rem;
+    }
+
+    .p-datatable-tbody > tr > td {
+      padding: 0.75rem 0.5rem;
+      border: 1px solid #f1f5f9;
+      vertical-align: middle;
+
+      .p-dropdown,
+      .p-inputnumber,
+      .p-inputtext {
+        width: 100%;
+        min-height: 2.5rem;
+      }
+    }
+
+    .p-datatable-tbody > tr:hover {
+      background: #f8fafc;
+    }
+
+    // Estilos específicos para inputs en tabla
+    .p-inputnumber input {
+      text-align: right;
+      padding: 0.5rem;
+    }
+
+    .p-dropdown .p-dropdown-label {
+      padding: 0.5rem;
+      font-size: 0.875rem;
+    }
+  }
+
+  /* 🏷️ Tags */
+  .p-tag {
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+
+    &.p-tag-info {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    &.p-tag-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+  }
+
+  /* 🔘 Botones */
+  .p-button {
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    padding: 0.75rem 1.5rem;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    &.p-button-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-color: #059669;
+    }
+
+    &.p-button-info {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      border-color: #2563eb;
+    }
+
+    &.p-button-secondary {
+      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+      border-color: #4b5563;
+    }
+
+    &.p-button-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      border-color: #dc2626;
+    }
+
+    // Botón pequeño
+    &.p-button-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    // Botones texto
+    &.p-button-text {
+      background: transparent;
+      border: 1px solid transparent;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
+
+      &.p-button-danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+      }
+    }
+
+    // Botones outlined
+    &.p-button-outlined {
+      background: transparent;
+
+      &.p-button-secondary {
+        color: #4b5563;
+        border-color: #4b5563;
+
+        &:hover {
+          background: #4b5563;
+          color: white;
+        }
+      }
+    }
+  }
+
+  /* 💰 Sección Total */
+  .text-2xl {
+    font-size: 2rem;
+    line-height: 1.1;
+    
+    @media (max-width: 768px) {
+      font-size: 1.5rem;
+    }
+  }
+
+  /* 🔄 Loading Estado */
+  .pi-spinner {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* 📱 Responsividad */
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+
+    .p-card .p-card-body {
+      padding: 1rem;
+    }
+
+    .p-toolbar {
+      .flex {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+      }
+
+      .p-button {
+        width: 100%;
+      }
+    }
+
+    // Tabla responsive
+    .p-datatable {
+      font-size: 0.875rem;
+
+      .p-datatable-thead > tr > th,
+      .p-datatable-tbody > tr > td {
+        padding: 0.5rem 0.25rem;
+      }
+
+      // Ocultar columnas menos importantes en móvil
+      th:nth-child(2),
+      td:nth-child(2) { // Depósito
+        display: none;
+      }
+    }
+
+    // Ajustar total en móvil
+    .text-2xl {
+      font-size: 1.25rem;
+    }
+  }
+
+  /* 🎨 Modal de Proveedor */
+  .p-dialog {
+    .p-dialog-header {
+      background: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .p-dialog-content {
+      padding: 1.5rem;
+    }
+
+    .p-dialog-footer {
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      border-radius: 0 0 8px 8px;
+      padding: 1rem 1.5rem;
+    }
+  }
+
+  /* 🎯 Estados de validación */
+  .ng-valid.ng-touched {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+  }
+
+  .ng-invalid.ng-touched,
+  .ng-invalid.ng-dirty {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+  }
+
+  /* 🔢 Input Number específico */
+  .p-inputnumber {
+    .p-inputnumber-buttons-stacked {
+      .p-inputnumber-button {
+        border-radius: 0;
+        
+        &.p-inputnumber-button-up {
+          border-radius: 0 8px 0 0;
+        }
+        
+        &.p-inputnumber-button-down {
+          border-radius: 0 0 8px 0;
+        }
+      }
+    }
+
+    &.p-inputnumber-currency .p-inputnumber-input {
+      text-align: right;
+    }
+  }
+
+  /* 📋 Dividers */
+  .p-divider {
+    margin: 1.5rem 0;
+    
+    &.p-divider-horizontal {
+      &:before {
+        background: #e2e8f0;
+      }
+    }
+  }
+
+  /* 🎨 Colores personalizados */
+  .text-primary {
+    color: #3b82f6;
+  }
+
+  .text-500 {
+    color: #64748b;
+  }
+
+  .text-green-600 {
+    color: #059669;
+  }
+
+  /* 📊 Empty states */
+  .p-datatable .p-datatable-emptymessage > td {
+    padding: 2rem;
+    text-align: center;
+    color: #64748b;
+
+    .pi {
+      display: block;
+      margin: 0 auto 1rem;
+      color: #cbd5e1;
+    }
+  }
+
+  /* 🎯 Tooltips */
+  .p-tooltip {
+    border-radius: 6px;
+    background: #374151;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    max-width: 200px;
+  }
+}

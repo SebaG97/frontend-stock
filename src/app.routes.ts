@@ -36,6 +36,23 @@ export const appRoutes: Routes = [
             { 
                 path: 'alarmas', 
                 loadComponent: () => import('./app/pages/alarmas/alarmas.component').then(m => m.AlarmasComponent) 
+            },
+            // Rutas para Caja Chica
+            {
+                path: 'caja-chica',
+                loadComponent: () => import('./app/pages/caja-chica/caja-chica-dashboard.component').then(m => m.CajaChicaDashboardComponent)
+            },
+            {
+                path: 'caja-chica/gastos',
+                loadComponent: () => import('./app/pages/caja-chica/gastos-list.component').then(m => m.GastosListComponent)
+            },
+            {
+                path: 'caja-chica/nuevo-gasto',
+                loadComponent: () => import('./app/pages/caja-chica/gasto-form.component').then(m => m.GastoFormComponent)
+            },
+            {
+                path: 'caja-chica/gastos/:id/editar',
+                loadComponent: () => import('./app/pages/caja-chica/gasto-form.component').then(m => m.GastoFormComponent)
             }
         ]
     },

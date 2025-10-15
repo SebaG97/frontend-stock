@@ -42,12 +42,24 @@
         </ng-template>
         <ng-template pTemplate="header">
           <tr>
-            <th style="width: 3rem">
+            <th style="width: 4rem">
               <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
             <th pSortableColumn="nombre">
               Nombre
               <p-sortIcon field="nombre"></p-sortIcon>
+            </th>
+            <th pSortableColumn="ruc">
+              RUC
+              <p-sortIcon field="ruc"></p-sortIcon>
+            </th>
+            <th pSortableColumn="telefono">
+              Teléfono
+              <p-sortIcon field="telefono"></p-sortIcon>
+            </th>
+            <th pSortableColumn="email">
+              Email
+              <p-sortIcon field="email"></p-sortIcon>
             </th>
             <th>Acciones</th>
           </tr>
@@ -59,6 +71,11 @@
             </td>
             <td>{{ proveedor.nombre }}</td>
             <td>
+              <span class="font-mono">{{ formatearRUC(proveedor.ruc) }}</span>
+            </td>
+            <td>{{ proveedor.telefono }}</td>
+            <td>{{ proveedor.email }}</td>
+            <td>
               <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
                 (click)="editProveedor(proveedor)"></button>
               <button pButton icon="pi pi-trash" class="p-button-rounded p-button-danger"
@@ -68,27 +85,83 @@
         </ng-template>
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="3" class="text-center py-6">
+            <td colspan="6" class="text-center py-6">
               No se encontraron proveedores
             </td>
           </tr>
         </ng-template>
       </p-table>
       <!-- Diálogo para crear/editar proveedor -->
-      <p-dialog [(visible)]="proveedorDialog" [style]="{width: '450px'}"
+      <p-dialog [(visible)]="proveedorDialog" [style]="{width: '600px'}"
         [header]="editId ? 'Editar Proveedor' : 'Nuevo Proveedor'"
         [modal]="true" class="p-fluid">
         <ng-template pTemplate="content">
-          <div class="field">
-            <label for="nombre">Nombre *</label>
-            <input type="text" pInputText id="nombre"
-              [(ngModel)]="proveedor.nombre"
-              required autofocus
-              [class.ng-invalid.ng-dirty]="submitted && !proveedor.nombre"
-              placeholder="Ingrese el nombre del proveedor" />
-            <small class="ng-dirty ng-invalid" *ngIf="submitted && !proveedor.nombre">
-              El nombre es requerido.
-            </small>
+          <div class="grid">
+            <div class="col-12">
+              <div class="field">
+                <label for="nombre">Nombre *</label>
+                <input type="text" pInputText id="nombre"
+                  [(ngModel)]="proveedor.nombre"
+                  required autofocus
+                  [class.ng-invalid.ng-dirty]="submitted && !proveedor.nombre"
+                  placeholder="Ingrese el nombre del proveedor" />
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !proveedor.nombre">
+                  El nombre es requerido.
+                </small>
+              </div>
+            </div>
+            
+            <div class="col-6">
+              <div class="field">
+                <label for="ruc">RUC *</label>
+                <input type="text" pInputText id="ruc"
+                  [(ngModel)]="proveedor.ruc"
+                  (input)="onRUCInput($event)"
+                  maxlength="10"
+                  required
+                  [class.ng-invalid.ng-dirty]="submitted && (!proveedor.ruc || !validarRUC(proveedor.ruc))"
+                  placeholder="Ej: 4264123-3 o 12345678-9" />
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && !proveedor.ruc">
+                  El RUC es requerido.
+                </small>
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && proveedor.ruc && !validarRUC(proveedor.ruc)">
+                  RUC inválido. Formatos aceptados: RUC personal (ej: 4264123-3) o empresarial (ej: 12345678-9).
+                </small>
+              </div>
+            </div>
+            
+            <div class="col-6">
+              <div class="field">
+                <label for="telefono">Teléfono</label>
+                <input type="text" pInputText id="telefono"
+                  [(ngModel)]="proveedor.telefono"
+                  placeholder="Ingrese el teléfono" />
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <div class="field">
+                <label for="email">Email</label>
+                <input type="email" pInputText id="email"
+                  [(ngModel)]="proveedor.email"
+                  [class.ng-invalid.ng-dirty]="submitted && proveedor.email && !validarEmail(proveedor.email)"
+                  placeholder="Ingrese el email" />
+                <small class="ng-dirty ng-invalid" *ngIf="submitted && proveedor.email && !validarEmail(proveedor.email)">
+                  El email no es válido.
+                </small>
+              </div>
+            </div>
+            
+            <div class="col-12">
+              <div class="field">
+                <label for="direccion">Dirección</label>
+                <textarea pInputTextarea id="direccion"
+                  [(ngModel)]="proveedor.direccion"
+                  rows="3"
+                  placeholder="Ingrese la dirección"
+                  style="resize: none;"></textarea>
+              </div>
+            </div>
           </div>
         </ng-template>
         <ng-template pTemplate="footer">
@@ -98,7 +171,7 @@
           <button pButton pRipple label="Guardar" icon="pi pi-check"
             class="p-button-text"
             (click)="saveProveedor()"
-            [disabled]="!proveedor.nombre"></button>
+            [disabled]="!proveedor.nombre || !proveedor.ruc || !validarRUC(proveedor.ruc) || (proveedor.email && !validarEmail(proveedor.email))"></button>
         </ng-template>
       </p-dialog>
       <!-- Diálogo de confirmación para eliminar -->
