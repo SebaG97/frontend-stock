@@ -84,13 +84,19 @@ export class CajaChicaDashboardComponent implements OnInit {
   // ===============================================
 
   cargarDashboard() {
+    console.log('📊 Iniciando carga del dashboard...');
     this.loading = true;
     
     this.cajaChicaService.obtenerResumen().subscribe({
       next: (resumen) => {
+        console.log('📊 Datos recibidos del resumen:', resumen);
+        console.log('💰 Saldo actual recibido:', resumen?.caja_chica?.saldo_actual);
+        
         this.resumen = resumen;
         this.calcularMetricas();
         this.loading = false;
+        
+        console.log('✅ Dashboard actualizado correctamente');
       },
       error: (error) => {
         console.error('Error al cargar resumen:', error);
@@ -296,15 +302,49 @@ export class CajaChicaDashboardComponent implements OnInit {
     }
 
     try {
+      // Usar el campo correcto que espera el backend
       const ajuste = {
         tipo_operacion: this.tipoOperacionSaldo,
-        monto: this.montoSaldo,
-        motivo: this.motivoSaldo,
-        fecha: new Date().toISOString().split('T')[0]
+        nuevo_monto: Number(this.montoSaldo), // Campo correcto según la validación del backend
+        motivo: String(this.motivoSaldo).trim(), // Asegurar que sea string limpio
+        fecha: new Date().toISOString().split('T')[0] // Formato YYYY-MM-DD
       };
+      
+      // Log para debug
+      console.log('Datos enviados al backend:', ajuste);
+      console.log('Tipo de operación:', typeof ajuste.tipo_operacion, ajuste.tipo_operacion);
+      console.log('Nuevo monto:', typeof ajuste.nuevo_monto, ajuste.nuevo_monto);
+      console.log('Motivo:', typeof ajuste.motivo, ajuste.motivo);
+      console.log('Fecha:', typeof ajuste.fecha, ajuste.fecha);
 
       this.cajaChicaService.ajustarSaldo(ajuste).subscribe({
         next: (resumenActualizado) => {
+          console.log('✅ Ajuste exitoso! Respuesta del backend:', resumenActualizado);
+          
+          // Actualizar el saldo localmente si el backend no devuelve datos actualizados
+          if (this.resumen?.caja_chica && this.montoSaldo !== null) {
+            const saldoAnterior = this.resumen.caja_chica.saldo_actual;
+            let nuevoSaldo = saldoAnterior;
+            
+            switch (this.tipoOperacionSaldo) {
+              case 'incrementar':
+                nuevoSaldo = saldoAnterior + this.montoSaldo;
+                break;
+              case 'decrementar':
+                nuevoSaldo = saldoAnterior - this.montoSaldo;
+                break;
+              case 'establecer':
+                nuevoSaldo = this.montoSaldo;
+                break;
+            }
+            
+            this.resumen.caja_chica.saldo_actual = nuevoSaldo;
+            console.log(`💰 Saldo actualizado localmente: ${saldoAnterior} → ${nuevoSaldo}`);
+            
+            // Recalcular métricas con el nuevo saldo
+            this.calcularMetricas();
+          }
+          
           this.messageService.add({
             severity: 'success',
             summary: 'Saldo Actualizado',
@@ -313,14 +353,43 @@ export class CajaChicaDashboardComponent implements OnInit {
           });
 
           this.cerrarModalSaldo();
-          this.cargarDashboard(); // Recargar datos
         },
         error: (error) => {
-          console.error('Error al ajustar saldo:', error);
+          console.error('ERROR COMPLETO del servidor:', error);
+          console.error('Status:', error.status);
+          console.error('Status Text:', error.statusText);
+          console.error('Error Body:', error.error);
+          console.error('Headers:', error.headers);
+          
+          let errorMessage = 'No se pudo actualizar el saldo.';
+          
+          if (error.status === 422) {
+            // Error de validación - mostrar detalles específicos
+            console.error('Detalles del error 422:', error.error);
+            
+            if (error.error) {
+              if (typeof error.error === 'string') {
+                errorMessage = `Error de validación: ${error.error}`;
+              } else if (error.error.detail) {
+                errorMessage = `Error de validación: ${JSON.stringify(error.error.detail)}`;
+              } else if (error.error.message) {
+                errorMessage = `Error de validación: ${error.error.message}`;
+              } else {
+                errorMessage = `Error de validación: ${JSON.stringify(error.error)}`;
+              }
+            } else {
+              errorMessage = 'Los datos enviados no son válidos. Verifique todos los campos.';
+            }
+          } else if (error.status === 404) {
+            errorMessage = 'La funcionalidad de ajuste de saldo no está disponible en el servidor.';
+          } else if (error.status === 500) {
+            errorMessage = 'Error interno del servidor. Contacte al administrador.';
+          }
+          
           this.messageService.add({
             severity: 'error',
-            summary: 'Error',
-            detail: 'No se pudo actualizar el saldo. Verifique la conexión con el servidor.'
+            summary: 'Error al Ajustar Saldo',
+            detail: errorMessage
           });
         }
       });

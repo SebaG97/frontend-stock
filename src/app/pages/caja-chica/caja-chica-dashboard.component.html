@@ -46,12 +46,12 @@
             
             <div class="text-center">
               <div class="text-3xl font-bold text-orange-600 mb-2">
-                {{ formatearMoneda(resumen.gastos_mes_actual) }}
+                {{ formatearMoneda(resumen.gastos_del_mes) }}
               </div>
               
-              <div class="text-sm text-500">
+              <div class="text-sm text-500" *ngIf="resumen.estadisticas?.promedio_mensual">
                 <i class="pi pi-chart-line mr-1"></i>
-                Promedio: {{ formatearMoneda(resumen.estadisticas.promedio_mensual) }}
+                Promedio: {{ formatearMoneda(resumen.estadisticas?.promedio_mensual || 0) }}
               </div>
             </div>
           </p-card>
@@ -91,19 +91,28 @@
             </ng-template>
             
             <div class="text-center">
-              <div class="mb-3">
+              <div class="mb-3" *ngIf="resumen.estadisticas?.total_gastos !== undefined; else noStats">
                 <div class="text-xl font-bold text-green-600">
-                  {{ resumen.estadisticas.total_gastos }}
+                  {{ resumen.estadisticas?.total_gastos || 0 }}
                 </div>
                 <div class="text-sm text-500">Total gastos</div>
               </div>
               
-              <div>
-                <div class="text-lg font-semibold text-500">
-                  {{ resumen.estadisticas.cantidad_proveedores }}
+              <div class="mb-2" *ngIf="resumen.estadisticas?.cantidad_proveedores !== undefined">
+                <div class="text-lg font-semibold text-green-600">
+                  {{ resumen.estadisticas?.cantidad_proveedores || 0 }}
                 </div>
                 <div class="text-sm text-500">Proveedores</div>
               </div>
+              
+              <ng-template #noStats>
+                <div class="mb-3">
+                  <div class="text-xl font-bold text-green-600">
+                    -
+                  </div>
+                  <div class="text-sm text-500">Estadísticas no disponibles</div>
+                </div>
+              </ng-template>
             </div>
           </p-card>
         </div>

@@ -19,6 +19,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
 import { MessageService, ConfirmationService } from 'primeng/api';
 
@@ -62,7 +63,8 @@ import {
     ConfirmDialogModule,
     DialogModule,
     ToolbarModule,
-    DividerModule
+    DividerModule,
+    RadioButtonModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './gasto-form.component.html',
@@ -83,7 +85,14 @@ export class GastoFormComponent implements OnInit {
   modoEdicion = false;
   gastoId: number | null = null;
   
-  // 💰 Cálculos
+  // � Tipo de gasto
+  tipoGasto: 'productos' | 'simple' = 'simple';
+  tiposGasto = [
+    { label: 'Gasto Simple (Sin factura)', value: 'simple', icon: 'pi pi-wallet' },
+    { label: 'Compra de Productos (Con factura)', value: 'productos', icon: 'pi pi-shopping-cart' }
+  ];
+  
+  // �💰 Cálculos
   totalGasto = 0;
   
   // 🏢 Modal nuevo proveedor
@@ -124,10 +133,12 @@ export class GastoFormComponent implements OnInit {
   private inicializarFormularios() {
     // Formulario principal de gasto
     this.gastoForm = this.fb.group({
-      proveedor_id: [null, [Validators.required]],
-      numero_factura: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{7}$/)]],
+      tipo_gasto: [this.tipoGasto, [Validators.required]],
+      proveedor_id: [null],
+      numero_factura: [''],
       fecha_factura: [new Date(), [Validators.required]],
       descripcion: ['', [Validators.required, Validators.minLength(5)]],
+      monto_simple: [null], // Para gastos simples
       productos: this.fb.array([])
     });
 
@@ -140,8 +151,63 @@ export class GastoFormComponent implements OnInit {
       email: ['', [Validators.email]]
     });
 
-    // Agregar primer producto por defecto
-    this.agregarProducto();
+    // Configurar validadores iniciales
+    this.configurarValidadoresPorTipo();
+  }
+
+  private configurarValidadoresPorTipo() {
+    const proveedorControl = this.gastoForm.get('proveedor_id');
+    const facturaControl = this.gastoForm.get('numero_factura');
+    const montoSimpleControl = this.gastoForm.get('monto_simple');
+    
+    if (this.tipoGasto === 'productos') {
+      // Modo productos: factura y proveedor requeridos
+      proveedorControl?.setValidators([Validators.required]);
+      facturaControl?.setValidators([
+        Validators.required, 
+        Validators.pattern(/^\d{3}-\d{3}-\d{7}$/)
+      ]);
+      montoSimpleControl?.clearValidators();
+      
+      // Agregar primer producto si no hay ninguno
+      if (this.productosArray.length === 0) {
+        this.agregarProducto();
+      }
+    } else {
+      // Modo simple: solo monto requerido, factura opcional
+      proveedorControl?.clearValidators();
+      facturaControl?.clearValidators();
+      montoSimpleControl?.setValidators([Validators.required, Validators.min(0.01)]);
+      
+      // Limpiar productos
+      while (this.productosArray.length > 0) {
+        this.productosArray.removeAt(0);
+      }
+    }
+    
+    // Actualizar validaciones
+    proveedorControl?.updateValueAndValidity();
+    facturaControl?.updateValueAndValidity();
+    montoSimpleControl?.updateValueAndValidity();
+  }
+
+  onTipoGastoChange() {
+    this.tipoGasto = this.gastoForm.get('tipo_gasto')?.value;
+    this.configurarValidadoresPorTipo();
+    this.calcularTotal();
+  }
+
+  seleccionarTipoGasto(tipo: 'productos' | 'simple') {
+    this.tipoGasto = tipo;
+    this.gastoForm.patchValue({ tipo_gasto: tipo });
+    this.configurarValidadoresPorTipo();
+    this.calcularTotal();
+  }
+
+  cambiarTipo(valor: string) {
+    if (valor === 'productos' || valor === 'simple') {
+      this.seleccionarTipoGasto(valor);
+    }
   }
 
   private async cargarDatos() {
@@ -257,10 +323,15 @@ export class GastoFormComponent implements OnInit {
   }
 
   calcularTotal() {
-    this.totalGasto = 0;
-    
-    for (let i = 0; i < this.productosArray.length; i++) {
-      this.totalGasto += this.calcularSubtotal(i);
+    if (this.tipoGasto === 'simple') {
+      // Para gastos simples, usar el monto directo
+      this.totalGasto = this.gastoForm.get('monto_simple')?.value || 0;
+    } else {
+      // Para gastos con productos, sumar subtotales
+      this.totalGasto = 0;
+      for (let i = 0; i < this.productosArray.length; i++) {
+        this.totalGasto += this.calcularSubtotal(i);
+      }
     }
   }
 
@@ -354,7 +425,8 @@ export class GastoFormComponent implements OnInit {
       return;
     }
 
-    if (this.productosArray.length === 0) {
+    // Validar productos solo si es tipo productos
+    if (this.tipoGasto === 'productos' && this.productosArray.length === 0) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Sin productos',
@@ -365,17 +437,36 @@ export class GastoFormComponent implements OnInit {
 
     this.guardando = true;
     
+    const formValue = this.gastoForm.value;
+    
+    let gastoData: GastoCreate = {
+      tipo_gasto: this.tipoGasto,
+      descripcion: formValue.descripcion,
+      fecha_factura: this.cajaChicaService.formatearFechaApi(formValue.fecha_factura)
+    };
+    
     try {
-      const formValue = this.gastoForm.value;
-      
-      const gastoData: GastoCreate = {
-        proveedor_id: formValue.proveedor_id,
-        numero_factura: formValue.numero_factura,
-        fecha_factura: this.cajaChicaService.formatearFechaApi(formValue.fecha_factura),
-        descripcion: formValue.descripcion,
-        productos: formValue.productos
-      };
 
+      if (this.tipoGasto === 'productos') {
+        // Gasto con productos y factura
+        gastoData = {
+          ...gastoData,
+          proveedor_id: formValue.proveedor_id,
+          numero_factura: formValue.numero_factura,
+          productos: formValue.productos
+        };
+      } else {
+        // Gasto simple
+        gastoData = {
+          ...gastoData,
+          monto_total: formValue.monto_simple,
+          proveedor_id: formValue.proveedor_id || null, // Opcional para gastos simples
+          numero_factura: formValue.numero_factura || null // Opcional para gastos simples
+        };
+      }
+
+      console.log('📤 Enviando gasto al backend:', gastoData);
+      
       let resultado: Gasto | undefined;
       
       if (this.modoEdicion && this.gastoId) {
@@ -397,12 +488,40 @@ export class GastoFormComponent implements OnInit {
       // Redirigir al listado o al detalle
       this.router.navigate(['/caja-chica/gastos']);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error al guardar gasto:', error);
+      console.error('Status:', error.status);
+      console.error('Error Body:', error.error);
+      console.error('Datos enviados:', gastoData);
+      
+      let errorMessage = `No se pudo ${this.modoEdicion ? 'actualizar' : 'crear'} el gasto`;
+      
+      if (error.status === 422) {
+        console.error('Detalles del error 422:', error.error);
+        
+        if (error.error) {
+          if (typeof error.error === 'string') {
+            errorMessage = `Error de validación: ${error.error}`;
+          } else if (Array.isArray(error.error)) {
+            errorMessage = `Error de validación: ${JSON.stringify(error.error)}`;
+          } else if (error.error.detail) {
+            errorMessage = `Error de validación: ${JSON.stringify(error.error.detail)}`;
+          } else if (error.error.message) {
+            errorMessage = `Error de validación: ${error.error.message}`;
+          } else {
+            errorMessage = `Error de validación: ${JSON.stringify(error.error)}`;
+          }
+        }
+      } else if (error.status === 404) {
+        errorMessage = 'Endpoint no encontrado en el servidor.';
+      } else if (error.status === 500) {
+        errorMessage = 'Error interno del servidor.';
+      }
+      
       this.messageService.add({
         severity: 'error',
-        summary: 'Error',
-        detail: `No se pudo ${this.modoEdicion ? 'actualizar' : 'crear'} el gasto`
+        summary: 'Error al Guardar Gasto',
+        detail: errorMessage
       });
     } finally {
       this.guardando = false;

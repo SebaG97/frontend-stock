@@ -92,12 +92,14 @@ export interface Deposito {
 
 // 💸 DTO para crear gasto
 export interface GastoCreate {
+  tipo_gasto: 'productos' | 'simple';
   proveedor_id?: number;
   proveedor_nombre?: string;  // Para crear proveedor nuevo
-  numero_factura: string;
+  numero_factura?: string; // Opcional para gastos simples
   fecha_factura: string;
   descripcion: string;
-  productos: ProductoGastoCreate[];
+  monto_total?: number; // Para gastos simples
+  productos?: ProductoGastoCreate[]; // Opcional para gastos simples
 }
 
 // 📋 DTO para productos en gasto
@@ -125,9 +127,9 @@ export interface ProveedorCreate {
 export interface ResumenCajaChica {
   caja_chica: CajaChica;
   gastos_totales: number;
-  gastos_mes_actual: number;
-  ultimo_gasto?: GastoResumen;
-  estadisticas: {
+  gastos_del_mes: number;
+  ultimo_gasto?: GastoResumen | null;
+  estadisticas?: {
     total_gastos: number;
     promedio_mensual: number;
     mayor_gasto: number;
@@ -182,7 +184,7 @@ export enum SeveridadAlerta {
 // 💰 Modelo para ajuste de saldo
 export interface AjusteSaldo {
   tipo_operacion: 'incrementar' | 'decrementar' | 'establecer';
-  monto: number;
+  nuevo_monto: number;
   motivo: string;
   fecha?: string;
 }

@@ -52,10 +52,46 @@
       
       <div class="grid">
         
-        <!-- 🏢 Proveedor -->
+        <!-- � Tipo de Gasto -->
+        <div class="col-12">
+          <label class="block text-sm font-medium mb-3">
+            <i class="pi pi-cog mr-2"></i>
+            Tipo de Gasto <span class="text-red-500">*</span>
+          </label>
+          
+          <div class="flex flex-wrap gap-4">
+            <div 
+              *ngFor="let tipo of tiposGasto" 
+              class="flex align-items-center border-1 border-300 p-3 border-round cursor-pointer hover:bg-blue-50 transition-colors"
+              [class.bg-blue-100]="tipoGasto === tipo.value"
+              [class.border-blue-500]="tipoGasto === tipo.value"
+              (click)="cambiarTipo(tipo.value)">
+              
+              <p-radioButton 
+                [inputId]="tipo.value" 
+                formControlName="tipo_gasto"
+                [value]="tipo.value"
+                (click)="onTipoGastoChange()">
+              </p-radioButton>
+              
+              <label [for]="tipo.value" class="ml-2 cursor-pointer">
+                <i [class]="tipo.icon + ' mr-2'"></i>
+                {{ tipo.label }}
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-12">
+          <p-divider></p-divider>
+        </div>
+        
+        <!--  Proveedor -->
+        <!-- 🏢 Proveedor (opcional para gastos simples) -->
         <div class="col-12 md:col-6">
           <label class="block text-sm font-medium mb-2">
-            Proveedor <span class="text-red-500">*</span>
+            Proveedor <span class="text-red-500" *ngIf="tipoGasto === 'productos'">*</span>
+            <small class="text-500" *ngIf="tipoGasto === 'simple'">(opcional)</small>
           </label>
           
           <div class="flex gap-2">
@@ -104,8 +140,8 @@
           </small>
         </div>
 
-        <!-- 🧾 Número de Factura -->
-        <div class="col-12 md:col-6">
+        <!-- 🧾 Número de Factura (solo para productos) -->
+        <div class="col-12 md:col-6" *ngIf="tipoGasto === 'productos'">
           <label class="block text-sm font-medium mb-2">
             Número de Factura <span class="text-red-500">*</span>
           </label>
@@ -122,11 +158,33 @@
             {{ obtenerMensajeError('numero_factura') }}
           </small>
         </div>
+        
+        <!-- 💰 Monto Simple (solo para gastos simples) -->
+        <div class="col-12 md:col-6" *ngIf="tipoGasto === 'simple'">
+          <label class="block text-sm font-medium mb-2">
+            Monto del Gasto <span class="text-red-500">*</span>
+          </label>
+          
+          <p-inputNumber
+            formControlName="monto_simple"
+            mode="currency"
+            currency="UYU"
+            locale="es-UY"
+            placeholder="0.00"
+            class="w-full"
+            [class.ng-invalid]="esCampoInvalido('monto_simple')"
+            (onInput)="calcularTotal()">
+          </p-inputNumber>
+            
+          <small class="p-error block mt-1" *ngIf="esCampoInvalido('monto_simple')">
+            {{ obtenerMensajeError('monto_simple') }}
+          </small>
+        </div>
 
-        <!-- 📅 Fecha de Factura -->
+        <!-- 📅 Fecha del Gasto -->
         <div class="col-12 md:col-6">
           <label class="block text-sm font-medium mb-2">
-            Fecha de Factura <span class="text-red-500">*</span>
+            {{ tipoGasto === 'productos' ? 'Fecha de Factura' : 'Fecha del Gasto' }} <span class="text-red-500">*</span>
           </label>
           
           <p-calendar 
@@ -165,8 +223,8 @@
       </div>
     </p-card>
 
-    <!-- 📦 Productos -->
-    <p-card styleClass="mb-4">
+    <!-- 📦 Productos (solo para tipo productos) -->
+    <p-card styleClass="mb-4" *ngIf="tipoGasto === 'productos'">
       <ng-template pTemplate="header">
         <div class="flex justify-content-between align-items-center p-3">
           <div class="flex align-items-center">
